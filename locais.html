@@ -1,0 +1,483 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1D6B3A;--gl:#E8F5EE;--gd:#14502B;--gm:#4CAF7C;
+  --warm:#F8F5F0;--wh:#fff;
+  --tx:#1A2A1A;--mu:#5A6B5A;--br:#DDE8DD;
+  --blue:#185FA5;--bluel:#E6F1FB;--blue8:#0C447C;
+  --amb:#854F0B;--ambl:#FAEEDA;--amb4:#EF9F27;
+  --pur:#5E35B1;--purl:#EEEDFE;
+  --cor:#993C1D;--corl:#FAECE7;
+  --teal:#0F6E56;--teall:#E1F5EE;
+  font-family:'Nunito',sans-serif;
+}
+.frame{width:380px;max-width:100%;margin:0 auto;background:var(--warm);border-radius:32px;overflow:hidden;border:2px solid var(--br);}
+.sbar{background:var(--gd);padding:10px 20px 8px;display:flex;justify-content:space-between;align-items:center;}
+.sbar span{color:#fff;font-size:11px;font-weight:700;}
+
+.view{display:none;flex-direction:column;}
+.view.on{display:flex;}
+
+/* ---- GATE (pedir localização) ---- */
+.gate{padding:32px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.gate-illo{width:100px;height:100px;border-radius:50%;background:var(--bluel);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.gate-illo i{font-size:48px;color:var(--blue);}
+.gate h2{font-size:20px;font-weight:900;color:var(--tx);margin-bottom:8px;}
+.gate p{font-size:13px;color:var(--mu);line-height:1.6;margin-bottom:24px;}
+.gate-perms{background:var(--wh);border-radius:16px;border:1px solid var(--br);padding:14px;width:100%;margin-bottom:20px;text-align:left;}
+.gate-perm-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--br);}
+.gate-perm-row:last-child{border-bottom:none;}
+.gate-perm-row i{font-size:18px;color:var(--blue);flex-shrink:0;}
+.gate-perm-row p{font-size:12px;color:var(--mu);line-height:1.4;}
+.gate-perm-row p strong{color:var(--tx);font-weight:800;}
+.btn-primary{background:var(--g);color:#fff;font-size:14px;font-weight:900;border:none;border-radius:16px;padding:14px 20px;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Nunito',sans-serif;transition:.2s;margin-bottom:10px;}
+.btn-primary:active{transform:scale(.97);}
+.btn-primary i{font-size:17px;}
+.btn-ghost{background:none;border:1.5px solid var(--br);color:var(--mu);font-size:13px;font-weight:800;border-radius:14px;padding:11px;width:100%;cursor:pointer;font-family:'Nunito',sans-serif;}
+
+/* ---- LOADING ---- */
+.loading-view{padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.pulse-ring{width:72px;height:72px;border-radius:50%;border:3px solid var(--gl);border-top:3px solid var(--g);animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-view p{font-size:13px;color:var(--mu);font-weight:700;text-align:center;}
+
+/* ---- MAIN MAP UI ---- */
+.map-area{height:180px;background:#E8F0E8;position:relative;overflow:hidden;}
+.map-bg{width:100%;height:100%;background:#EEF4EE;}
+.map-grid{position:absolute;inset:0;}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:.15s;}
+.map-pin:active{transform:scale(1.15);}
+.pin-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+.pin-dot i{font-size:15px;color:#fff;}
+.pin-label{font-size:9px;font-weight:800;background:#fff;border:0.5px solid var(--br);padding:2px 6px;border-radius:6px;margin-top:3px;white-space:nowrap;color:var(--tx);}
+.user-dot{position:absolute;width:16px;height:16px;background:var(--blue);border-radius:50%;border:3px solid #fff;left:48%;top:48%;}
+.user-dot::after{content:'';position:absolute;width:32px;height:32px;border-radius:50%;border:2px solid rgba(24,95,165,.25);top:-10px;left:-10px;}
+.map-btns{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;}
+.map-btn{width:32px;height:32px;background:#fff;border-radius:8px;border:0.5px solid var(--br);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.map-btn i{font-size:16px;color:var(--tx);}
+.city-badge{position:absolute;top:10px;left:10px;background:#fff;border-radius:10px;border:0.5px solid var(--br);padding:5px 10px;display:flex;align-items:center;gap:5px;}
+.city-badge i{font-size:13px;color:var(--g);}
+.city-badge span{font-size:11px;font-weight:800;color:var(--tx);}
+
+.search-bar{padding:10px 12px;background:var(--wh);border-bottom:0.5px solid var(--br);display:flex;gap:8px;align-items:center;}
+.search-inp{flex:1;background:var(--warm);border:1px solid var(--br);border-radius:20px;padding:8px 14px;font-size:12px;color:var(--tx);font-family:'Nunito',sans-serif;outline:none;}
+.search-inp::placeholder{color:var(--mu);}
+.search-ico{width:36px;height:36px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.search-ico i{font-size:17px;color:#fff;}
+
+.cat-bar{display:flex;gap:7px;padding:10px 12px;overflow-x:auto;background:var(--wh);}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-pill{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:800;border:1.5px solid var(--br);background:var(--wh);color:var(--mu);cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0;}
+.cat-pill i{font-size:14px;}
+.cat-pill.on{color:#fff;border-color:transparent;}
+
+.results-area{overflow-y:auto;max-height:340px;padding:10px 12px;}
+.results-area::-webkit-scrollbar{display:none;}
+
+.place-card{background:var(--wh);border-radius:18px;border:1px solid var(--br);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:.15s;}
+.place-card:active{transform:scale(.98);}
+.place-card.featured{border:2px solid var(--g);}
+.place-top{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 8px;}
+.place-ico-wrap{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.place-ico-wrap i{font-size:22px;color:#fff;}
+.place-info{flex:1;min-width:0;}
+.place-name{font-size:13px;font-weight:900;color:var(--tx);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.place-type{font-size:10px;color:var(--mu);font-weight:700;margin-bottom:4px;}
+.place-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.stars{font-size:11px;color:var(--amb4);font-weight:800;}
+.dist-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;background:var(--bluel);color:var(--blue8);}
+.status-open{font-size:10px;font-weight:800;color:#27500A;background:var(--gl);padding:2px 7px;border-radius:8px;}
+.status-closed{font-size:10px;font-weight:800;color:var(--cor);background:var(--corl);padding:2px 7px;border-radius:8px;}
+.place-tags{display:flex;gap:5px;flex-wrap:wrap;padding:0 12px 8px;}
+.ptag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.place-footer{display:flex;border-top:0.5px solid var(--br);}
+.pf-btn{flex:1;padding:10px 6px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800;color:var(--mu);border:none;background:none;cursor:pointer;font-family:'Nunito',sans-serif;border-right:0.5px solid var(--br);transition:.15s;}
+.pf-btn:last-child{border-right:none;}
+.pf-btn:active{background:var(--warm);}
+.pf-btn i{font-size:14px;}
+.pf-btn.fav i{color:#E24B4A;}
+
+.featured-badge{background:var(--g);color:#fff;font-size:9px;font-weight:900;padding:2px 8px;border-radius:0 0 8px 8px;display:inline-block;margin-left:12px;margin-bottom:4px;}
+
+.no-results{padding:30px 16px;text-align:center;}
+.no-results i{font-size:40px;color:var(--br);display:block;margin-bottom:10px;}
+.no-results p{font-size:13px;color:var(--mu);}
+
+.bnav{background:var(--wh);border-top:1px solid var(--br);display:flex;justify-content:space-around;padding:7px 0 12px;}
+.ni{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 6px;border-radius:12px;}
+.ni i{font-size:20px;color:var(--mu);}
+.ni span{font-size:9px;color:var(--mu);font-weight:700;}
+.ni.on i,.ni.on span{color:var(--g);}
+.ni.on{background:var(--gl);}
+
+.detail-overlay{display:none;flex-direction:column;}
+.detail-overlay.on{display:flex;}
+.detail-hero{height:140px;display:flex;align-items:center;justify-content:center;position:relative;}
+.detail-back{position:absolute;top:12px;left:12px;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+.detail-back i{font-size:18px;color:var(--tx);}
+.detail-fav{position:absolute;top:12px;right:12px;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+.detail-fav i{font-size:18px;color:#E24B4A;}
+.detail-body{padding:14px;overflow-y:auto;max-height:480px;}
+.detail-body::-webkit-scrollbar{display:none;}
+.detail-name{font-size:18px;font-weight:900;color:var(--tx);margin-bottom:2px;}
+.detail-sub{font-size:12px;color:var(--mu);margin-bottom:10px;}
+.detail-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--br);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row i{font-size:17px;color:var(--g);flex-shrink:0;}
+.detail-row p{font-size:12px;color:var(--tx);line-height:1.4;}
+.detail-row p span{color:var(--mu);font-size:11px;}
+.pet-rules{background:var(--gl);border-radius:14px;padding:12px 14px;margin:10px 0;}
+.pet-rules h4{font-size:12px;font-weight:900;color:#27500A;margin-bottom:8px;}
+.pet-rule-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.pet-rule-row:last-child{margin-bottom:0;}
+.pet-rule-row i{font-size:15px;flex-shrink:0;}
+.pet-rule-row p{font-size:11px;color:#3B6D11;}
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.act-btn{padding:12px;border-radius:14px;border:1.5px solid var(--br);background:var(--wh);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-family:'Nunito',sans-serif;transition:.15s;}
+.act-btn:active{background:var(--warm);}
+.act-btn i{font-size:20px;color:var(--g);}
+.act-btn span{font-size:11px;font-weight:800;color:var(--tx);}
+.act-btn-full{background:var(--g);color:#fff;font-size:13px;font-weight:900;border:none;border-radius:14px;padding:13px;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'Nunito',sans-serif;margin-top:8px;}
+.act-btn-full i{font-size:16px;}
+</style>
+
+<div class="frame">
+  <div class="sbar">
+    <span>9:41</span>
+    <span style="color:#A8F0C0;font-weight:900;">🐾 PetPeti Naturalis</span>
+    <span style="color:#A8F0C0;">●●●</span>
+  </div>
+
+  <!-- GATE: pedir localização -->
+  <div class="view on" id="v-gate">
+    <div class="gate">
+      <div class="gate-illo">
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+      </div>
+      <h2>Locais Pet Friendly</h2>
+      <p>Encontre bares, restaurantes, hotéis, lojas e parques que recebem seu pet com carinho — tudo perto de você.</p>
+      <div class="gate-perms">
+        <div class="gate-perm-row">
+          <i class="ti ti-map-pin" aria-hidden="true"></i>
+          <p><strong>Localização</strong> — usada apenas para buscar locais próximos. Nunca rastreamos você em segundo plano.</p>
+        </div>
+        <div class="gate-perm-row">
+          <i class="ti ti-shield-check" aria-hidden="true"></i>
+          <p><strong>Privacidade garantida</strong> — sua localização não é compartilhada com outros usuários nem com anunciantes.</p>
+        </div>
+        <div class="gate-perm-row">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          <p><strong>Controle total</strong> — você pode revogar em Configurações → Permissões a qualquer momento.</p>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="startLocate()">
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+        Ativar localização e buscar
+      </button>
+      <button class="btn-ghost" onclick="skipLocate()">Digitar cidade manualmente</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="view" id="v-load">
+    <div class="loading-view">
+      <div class="pulse-ring"></div>
+      <p id="load-msg">Obtendo sua localização...</p>
+    </div>
+  </div>
+
+  <!-- MAIN: mapa + lista -->
+  <div class="view" id="v-main">
+    <!-- mapa simulado -->
+    <div class="map-area">
+      <div class="map-bg"></div>
+      <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.18;" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="45" x2="380" y2="45" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="0" y1="90" x2="380" y2="90" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="0" y1="135" x2="380" y2="135" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="60" y1="0" x2="60" y2="180" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="140" y1="0" x2="140" y2="180" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="220" y1="0" x2="220" y2="180" stroke="#1D6B3A" stroke-width="1"/>
+        <line x1="300" y1="0" x2="300" y2="180" stroke="#1D6B3A" stroke-width="1"/>
+        <rect x="70" y="10" width="55" height="30" rx="4" fill="#D0E8D0"/>
+        <rect x="150" y="50" width="40" height="20" rx="4" fill="#D0E8D0"/>
+        <rect x="240" y="30" width="48" height="25" rx="4" fill="#D0E8D0"/>
+        <rect x="80" y="100" width="35" height="22" rx="4" fill="#D0E8D0"/>
+        <rect x="200" y="110" width="60" height="18" rx="4" fill="#D0E8D0"/>
+        <path d="M0 160 Q95 130 190 155 Q285 175 380 145" stroke="#B0C8B0" stroke-width="6" fill="none"/>
+      </svg>
+      <div class="user-dot" title="Você está aqui"></div>
+      <div class="map-pin" style="left:18%;top:14%;" onclick="openDetail(0)">
+        <div class="pin-dot" style="background:#185FA5;"><i class="ti ti-building-store" aria-hidden="true"></i></div>
+        <span class="pin-label">Empório Pet</span>
+      </div>
+      <div class="map-pin" style="left:65%;top:20%;" onclick="openDetail(1)">
+        <div class="pin-dot" style="background:#854F0B;"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>
+        <span class="pin-label">Café Bistrô</span>
+      </div>
+      <div class="map-pin" style="left:30%;top:60%;" onclick="openDetail(2)">
+        <div class="pin-dot" style="background:#0F6E56;"><i class="ti ti-trees" aria-hidden="true"></i></div>
+        <span class="pin-label">Parque Verde</span>
+      </div>
+      <div class="map-pin" style="left:72%;top:58%;" onclick="openDetail(3)">
+        <div class="pin-dot" style="background:#5E35B1;"><i class="ti ti-bed" aria-hidden="true"></i></div>
+        <span class="pin-label">Hotel Paws</span>
+      </div>
+      <div class="map-pin" style="left:55%;top:75%;" onclick="openDetail(4)">
+        <div class="pin-dot" style="background:#D85A30;"><i class="ti ti-beer" aria-hidden="true"></i></div>
+        <span class="pin-label">Bar do Largo</span>
+      </div>
+      <div class="city-badge">
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span>São Paulo, SP</span>
+      </div>
+      <div class="map-btns">
+        <div class="map-btn"><i class="ti ti-plus" aria-hidden="true"></i></div>
+        <div class="map-btn"><i class="ti ti-minus" aria-hidden="true"></i></div>
+        <div class="map-btn"><i class="ti ti-location" aria-hidden="true"></i></div>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input class="search-inp" id="searchInp" placeholder="Buscar local, bairro..." oninput="filterPlaces()"/>
+      <div class="search-ico"><i class="ti ti-search" aria-hidden="true"></i></div>
+    </div>
+
+    <div class="cat-bar" id="catBar">
+      <div class="cat-pill on" style="background:var(--g);" data-cat="all" onclick="setCat(this,'all')">
+        <i class="ti ti-layout-grid" aria-hidden="true"></i> Todos
+      </div>
+      <div class="cat-pill" data-cat="restaurante" onclick="setCat(this,'restaurante')" style="">
+        <i class="ti ti-tools-kitchen-2" aria-hidden="true"></i> Restaurantes
+      </div>
+      <div class="cat-pill" data-cat="bar" onclick="setCat(this,'bar')" style="">
+        <i class="ti ti-beer" aria-hidden="true"></i> Bares
+      </div>
+      <div class="cat-pill" data-cat="hotel" onclick="setCat(this,'hotel')" style="">
+        <i class="ti ti-bed" aria-hidden="true"></i> Hotéis
+      </div>
+      <div class="cat-pill" data-cat="loja" onclick="setCat(this,'loja')" style="">
+        <i class="ti ti-building-store" aria-hidden="true"></i> Lojas
+      </div>
+      <div class="cat-pill" data-cat="parque" onclick="setCat(this,'parque')" style="">
+        <i class="ti ti-trees" aria-hidden="true"></i> Parques
+      </div>
+    </div>
+
+    <div class="results-area" id="resultsList"></div>
+
+    <div class="bnav">
+      <div class="ni" onclick="goMain()"><i class="ti ti-home"></i><span>Início</span></div>
+      <div class="ni" onclick="goMain()"><i class="ti ti-school"></i><span>Treinos</span></div>
+      <div class="ni on"><i class="ti ti-map-pin"></i><span>Locais</span></div>
+      <div class="ni" onclick="goMain()"><i class="ti ti-robot"></i><span>IA Pet</span></div>
+      <div class="ni" onclick="goMain()"><i class="ti ti-user"></i><span>Perfil</span></div>
+    </div>
+  </div>
+
+  <!-- DETALHE do local -->
+  <div class="detail-overlay" id="v-detail">
+    <div class="detail-hero" id="detHero">
+      <button class="detail-back" onclick="closeDetail()" aria-label="Voltar"><i class="ti ti-arrow-left"></i></button>
+      <button class="detail-fav" onclick="toggleFav(this)" aria-label="Favoritar"><i class="ti ti-heart"></i></button>
+    </div>
+    <div class="detail-body" id="detBody"></div>
+  </div>
+</div>
+
+<script>
+const catColors={
+  restaurante:{bg:'#854F0B',light:'#FAEEDA',text:'#633806'},
+  bar:{bg:'#993C1D',light:'#FAECE7',text:'#712B13'},
+  hotel:{bg:'#5E35B1',light:'#EEEDFE',text:'#3C3489'},
+  loja:{bg:'#185FA5',light:'#E6F1FB',text:'#0C447C'},
+  parque:{bg:'#0F6E56',light:'#E1F5EE',text:'#085041'},
+};
+const catIcons={restaurante:'ti-tools-kitchen-2',bar:'ti-beer',hotel:'ti-bed',loja:'ti-building-store',parque:'ti-trees'};
+const places=[
+  {id:0,name:'Empório Pet Gourmet',tipo:'loja',bairro:'Pinheiros',dist:'0.3 km',rating:'4.9',aberto:true,featured:true,
+   addr:'Rua dos Pinheiros, 142 — Pinheiros',tel:'(11) 3456-7890',horario:'Seg–Sab 09h–20h · Dom 10h–18h',
+   tags:['Ração natural','Petiscos','Acessórios','Banho e tosa'],
+   desc:'Loja especializada em produtos naturais para pets. Trabalha com a linha PetPeti Naturalis e tem consultora de nutrição animal no local.',
+   regras:['Pets de todas as raças bem-vindos','Água e petisco grátis na entrada','Pets devem estar na guia ou no colo','Área de pesagem e medição gratuita']},
+  {id:1,name:'Bistrô do Parque',tipo:'restaurante',bairro:'Moema',dist:'0.7 km',rating:'4.7',aberto:true,featured:false,
+   addr:'Av. Moema, 580 — Moema',tel:'(11) 3789-4521',horario:'Ter–Dom 12h–23h · Seg fechado',
+   tags:['Área externa','Menu pet','Dog water','Pet menu'],
+   desc:'Restaurante com ampla área externa pet friendly. Cardápio especial para cães e gatos com ingredientes naturais aprovados por veterinários.',
+   regras:['Permitido na área externa','Água fresca fornecida','Menu pet disponível','Máx 2 pets por mesa']},
+  {id:2,name:'Parque Estadual Verde',tipo:'parque',bairro:'Vila Madalena',dist:'1.1 km',rating:'4.8',aberto:true,featured:false,
+   addr:'Entrada pela Rua Harmonia — Vila Madalena',tel:'—',horario:'Todos os dias 06h–20h · Entrada gratuita',
+   tags:['Área livre','Bebedouro','Pista de agility','Dog park'],
+   desc:'Parque público com área exclusiva para cães chamada "Dog Park". Possui pista de agility, bebedouros e gramado amplo para soltura com segurança.',
+   regras:['Guia obrigatória nas áreas comuns','Área livre no Dog Park cercado','Leve saquinhos para coleta','Vacinação em dia obrigatória']},
+  {id:3,name:'Hotel Paws & Friends',tipo:'hotel',bairro:'Jardins',dist:'1.4 km',rating:'4.6',aberto:true,featured:false,
+   addr:'Rua Augusta, 2100 — Jardins',tel:'(11) 3000-9988',horario:'Check-in 24h · Reserva antecipada',
+   tags:['Pet suite','Dog sitter','Serviço de pet','Aceita porte grande'],
+   desc:'Hotel boutique pet friendly com suítes especiais para pets. Oferece serviços de dog sitter, banho e tosa e veterinário de plantão.',
+   regras:['Pets de todos os portes','Taxa extra de R$ 80/diária','Máx 2 pets por quarto','Coleira e documentação de vacina']},
+  {id:4,name:'Bar do Largo Pet',tipo:'bar',bairro:'Vila Madalena',dist:'0.9 km',rating:'4.5',aberto:false,featured:false,
+   addr:'Largo do Arouche, 45 — Centro',tel:'(11) 3220-1144',horario:'Qui–Sab 17h–02h · Dom 15h–00h',
+   tags:['Calçada ampla','Pet welcome','Happy hour','Dog bowl'],
+   desc:'Bar descolado no coração da Vila com calçada ampla e política pet friendly. Toda quinta é o "Pet Night" com desconto para tutores que chegam com o pet.',
+   regras:['Área externa e calçada','Água e petisco gentileza da casa','Pets devem ser sociáveis','Não é permitido no interior']},
+  {id:5,name:'Café Pata Feliz',tipo:'restaurante',bairro:'Itaim Bibi',dist:'1.6 km',rating:'4.8',aberto:true,featured:false,
+   addr:'Rua Leopoldo Couto, 700 — Itaim',tel:'(11) 3071-5566',horario:'Seg–Sex 08h–19h · Sab–Dom 09h–17h',
+   tags:['Pet café','Área interna','Cardápio pet','Instagram famous'],
+   desc:'O café mais pet friendly de São Paulo! Permite pets dentro do estabelecimento em mesas específicas. Vende petiscos artesanais e tem cantinho de fotos temático.',
+   regras:['Pets permitidos dentro','Área interna com cadeiras baixas','Petiscos naturais à venda','Fotos bem-vindas!']},
+  {id:6,name:'Pet Shop Naturalis',tipo:'loja',bairro:'Perdizes',dist:'2.1 km',rating:'4.7',aberto:true,featured:false,
+   addr:'Rua Ministro Godói, 300 — Perdizes',tel:'(11) 3862-4499',horario:'Seg–Sab 09h–19h · Dom 10h–15h',
+   tags:['Revendedor PetPeti','Vet no local','Banho e tosa','Delivery'],
+   desc:'Revendedor oficial dos petiscos PetPeti Naturalis. Possui veterinário clínico geral no local às terças, quintas e sábados. Delivery para o bairro.',
+   regras:['Pets bem-vindos com guia','Consultas com hora marcada','Estacionamento disponível','Cashback para clientes PetPeti']},
+  {id:7,name:'Parque do Ibirapuera',tipo:'parque',bairro:'Ibirapuera',dist:'2.8 km',rating:'4.9',aberto:true,featured:false,
+   addr:'Av. Pedro Álvares Cabral, s/n — Ibirapuera',tel:'—',horario:'Todos os dias 05h–22h · Gratuito',
+   tags:['Icônico','Lago','Trilhas','Porte livre'],
+   desc:'O maior parque de SP. Pets são permitidos em toda a extensão com guia. Lago, trilhas e praças enormes para passeios longos. Bebedouros em vários pontos.',
+   regras:['Guia obrigatória em todo o parque','Leve saquinhos de coleta','Não permitido nos museus','Vacinação recomendada']},
+];
+
+let currentCat='all';
+let currentSearch='';
+
+function setCat(el,cat){
+  document.querySelectorAll('.cat-pill').forEach(p=>{
+    p.classList.remove('on');
+    p.style.background='';
+    p.style.color='';
+    p.style.borderColor='';
+  });
+  el.classList.add('on');
+  if(cat==='all'){el.style.background='#1D6B3A';el.style.color='#fff';el.style.borderColor='transparent';}
+  else{const c=catColors[cat];el.style.background=c.bg;el.style.color='#fff';el.style.borderColor='transparent';}
+  currentCat=cat;
+  renderPlaces();
+}
+
+function filterPlaces(){currentSearch=document.getElementById('searchInp').value.toLowerCase();renderPlaces();}
+
+function renderPlaces(){
+  const filtered=places.filter(p=>{
+    const catOk=currentCat==='all'||p.tipo===currentCat;
+    const searchOk=!currentSearch||p.name.toLowerCase().includes(currentSearch)||p.bairro.toLowerCase().includes(currentSearch)||p.tags.some(t=>t.toLowerCase().includes(currentSearch));
+    return catOk&&searchOk;
+  });
+  const list=document.getElementById('resultsList');
+  if(!filtered.length){list.innerHTML=`<div class="no-results"><i class="ti ti-search-off" aria-hidden="true"></i><p>Nenhum local encontrado.<br>Tente outra categoria ou busca.</p></div>`;return;}
+  let html=`<div style="font-size:11px;font-weight:800;color:var(--mu);margin-bottom:8px;">${filtered.length} local${filtered.length!==1?'is':''} encontrado${filtered.length!==1?'s':''} próximos a você</div>`;
+  filtered.forEach(p=>{
+    const c=catColors[p.tipo];
+    const ico=catIcons[p.tipo];
+    const stars='★'.repeat(Math.floor(parseFloat(p.rating)));
+    html+=`<div class="place-card${p.featured?' featured':''}" onclick="openDetail(${p.id})">`;
+    if(p.featured)html+=`<div class="featured-badge">⭐ Parceiro PetPeti</div>`;
+    html+=`<div class="place-top">
+      <div class="place-ico-wrap" style="background:${c.bg};"><i class="ti ${ico}" aria-hidden="true"></i></div>
+      <div class="place-info">
+        <div class="place-name">${p.name}</div>
+        <div class="place-type">${p.bairro} · ${p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1)}</div>
+        <div class="place-meta">
+          <span class="stars">${stars} ${p.rating}</span>
+          <span class="dist-badge"><i class="ti ti-walk" style="font-size:10px;" aria-hidden="true"></i> ${p.dist}</span>
+          <span class="${p.aberto?'status-open':'status-closed'}">${p.aberto?'Aberto agora':'Fechado'}</span>
+        </div>
+      </div>
+    </div>`;
+    html+=`<div class="place-tags">${p.tags.slice(0,3).map(t=>`<span class="ptag" style="background:${c.light};color:${c.text};">${t}</span>`).join('')}</div>`;
+    html+=`<div class="place-footer">
+      <button class="pf-btn" onclick="event.stopPropagation();"><i class="ti ti-route" aria-hidden="true"></i>Rota</button>
+      <button class="pf-btn" onclick="event.stopPropagation();"><i class="ti ti-phone" aria-hidden="true"></i>Ligar</button>
+      <button class="pf-btn fav" onclick="event.stopPropagation();toggleCardFav(this)"><i class="ti ti-heart" aria-hidden="true"></i>Salvar</button>
+    </div></div>`;
+  });
+  list.innerHTML=html;
+}
+
+function openDetail(id){
+  const p=places[id];
+  const c=catColors[p.tipo];
+  const ico=catIcons[p.tipo];
+  document.getElementById('v-main').style.display='none';
+  const ov=document.getElementById('v-detail');
+  ov.classList.add('on');
+  document.getElementById('detHero').style.background=c.light;
+  document.getElementById('detHero').innerHTML=`
+    <button class="detail-back" onclick="closeDetail()" aria-label="Voltar"><i class="ti ti-arrow-left"></i></button>
+    <div style="width:70px;height:70px;border-radius:20px;background:${c.bg};display:flex;align-items:center;justify-content:center;">
+      <i class="ti ${ico}" style="font-size:34px;color:#fff;" aria-hidden="true"></i>
+    </div>
+    <button class="detail-fav" onclick="toggleFav(this)" aria-label="Favoritar"><i class="ti ti-heart"></i></button>`;
+  const stars='★'.repeat(Math.floor(parseFloat(p.rating)));
+  let html=`
+    <div class="detail-name">${p.name}</div>
+    <div class="detail-sub">${p.bairro} · ${p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1)} · ${p.dist} de distância</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--amb4);font-weight:800;">${stars} ${p.rating}</span>
+      <span class="${p.aberto?'status-open':'status-closed'}">${p.aberto?'Aberto agora':'Fechado'}</span>
+    </div>
+    <p style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:12px;">${p.desc}</p>
+    <div style="background:var(--wh);border-radius:14px;border:1px solid var(--br);margin-bottom:12px;">
+      <div class="detail-row"><i class="ti ti-map-pin" aria-hidden="true"></i><p>${p.addr}</p></div>
+      <div class="detail-row"><i class="ti ti-clock" aria-hidden="true"></i><p>${p.horario}</p></div>
+      <div class="detail-row"><i class="ti ti-phone" aria-hidden="true"></i><p>${p.tel}</p></div>
+    </div>
+    <div class="pet-rules">
+      <h4>🐾 Regras para pets</h4>
+      ${p.regras.map(r=>`<div class="pet-rule-row"><i class="ti ti-check" style="color:var(--g);" aria-hidden="true"></i><p>${r}</p></div>`).join('')}
+    </div>
+    <div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:800;color:var(--mu);margin-bottom:6px;">Tags</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">${p.tags.map(t=>`<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;background:${c.light};color:${c.text};">${t}</span>`).join('')}</div></div>
+    <div class="action-btns">
+      <button class="act-btn"><i class="ti ti-route" aria-hidden="true"></i><span>Como chegar</span></button>
+      <button class="act-btn"><i class="ti ti-phone" aria-hidden="true"></i><span>Ligar</span></button>
+      <button class="act-btn"><i class="ti ti-share" aria-hidden="true"></i><span>Compartilhar</span></button>
+      <button class="act-btn"><i class="ti ti-star" aria-hidden="true"></i><span>Avaliar</span></button>
+    </div>
+    <button class="act-btn-full"><i class="ti ti-map-pin" aria-hidden="true"></i>Ver no mapa</button>`;
+  document.getElementById('detBody').innerHTML=html;
+}
+
+function closeDetail(){
+  document.getElementById('v-detail').classList.remove('on');
+  document.getElementById('v-main').style.display='flex';
+}
+
+function toggleFav(btn){
+  const ic=btn.querySelector('i');
+  const on=ic.style.color==='rgb(255,255,255)'||ic.style.fill==='#fff';
+  ic.style.color=on?'#E24B4A':'#fff';
+  btn.style.background=on?'rgba(255,255,255,.9)':'#E24B4A';
+}
+function toggleCardFav(btn){
+  const ic=btn.querySelector('i');
+  const isRed=ic.style.color==='rgb(226,75,74)';
+  ic.style.color=isRed?'':'#E24B4A';
+}
+
+function startLocate(){
+  document.getElementById('v-gate').classList.remove('on');
+  document.getElementById('v-load').classList.add('on');
+  const msgs=['Obtendo sua localização...','Buscando locais pet friendly...','Calculando distâncias...','Quase pronto!'];
+  let i=0;
+  const iv=setInterval(()=>{
+    i++;
+    if(i<msgs.length)document.getElementById('load-msg').textContent=msgs[i];
+    else{
+      clearInterval(iv);
+      document.getElementById('v-load').classList.remove('on');
+      document.getElementById('v-main').style.display='flex';
+      renderPlaces();
+    }
+  },700);
+}
+
+function skipLocate(){
+  document.getElementById('v-gate').classList.remove('on');
+  document.getElementById('v-main').style.display='flex';
+  renderPlaces();
+}
+
+function goMain(){}
+</script>

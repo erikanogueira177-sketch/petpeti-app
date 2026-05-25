@@ -1,0 +1,488 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1D6B3A;--gl:#E8F5EE;--gd:#14502B;
+  --warm:#F8F5F0;--wh:#FFFFFF;
+  --tx:#1A2A1A;--mu:#5A6B5A;--br:#DDE8DD;
+  font-family:'Nunito',sans-serif;
+}
+.frame{width:380px;max-width:100%;margin:0 auto;background:var(--warm);border-radius:32px;overflow:hidden;border:2px solid var(--br);}
+.sbar{background:var(--gd);padding:10px 20px 8px;display:flex;justify-content:space-between;}
+.sbar span{color:#fff;font-size:11px;font-weight:700;}
+.scr{display:none;flex-direction:column;min-height:660px;}
+.scr.on{display:flex;}
+.scrollc{flex:1;overflow-y:auto;}
+.scrollc::-webkit-scrollbar{display:none;}
+
+.hdr{background:var(--gd);padding:18px 16px 22px;}
+.hdr h2{color:#fff;font-size:19px;font-weight:900;margin-bottom:2px;}
+.hdr p{color:rgba(255,255,255,.7);font-size:12px;}
+.hdr-row{display:flex;align-items:center;gap:10px;}
+.hdr-ico{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:19px;}
+
+.tab-row{background:var(--gd);display:flex;padding:0 12px 12px;gap:6px;}
+.tab{flex:1;background:rgba(255,255,255,.15);color:rgba(255,255,255,.75);font-size:12px;font-weight:800;padding:8px 6px;border-radius:12px;text-align:center;cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:.2s;}
+.tab.on{background:#fff;color:var(--g);}
+
+.pad{padding:14px;}
+.section-card{background:var(--wh);border-radius:16px;border:1px solid var(--br);margin-bottom:10px;overflow:hidden;}
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:var(--wh);}
+.sec-hdr.open{background:var(--gl);}
+.sec-ico{width:34px;height:34px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.sec-title{flex:1;font-size:13px;font-weight:800;color:var(--tx);}
+.sec-hdr i{font-size:16px;color:var(--mu);transition:.3s;flex-shrink:0;}
+.sec-hdr.open i{transform:rotate(180deg);color:var(--g);}
+.sec-body{display:none;padding:0 14px 13px;border-top:0.5px solid var(--br);}
+.sec-body.show{display:block;}
+.sec-body p{font-size:12px;color:var(--mu);line-height:1.7;margin-bottom:8px;}
+.sec-body p:last-child{margin-bottom:0;}
+.sec-body strong{color:var(--tx);font-weight:800;}
+.sec-body ul{padding-left:16px;margin-bottom:8px;}
+.sec-body ul li{font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:3px;}
+.highlight{background:var(--gl);border-radius:10px;padding:10px 12px;border-left:3px solid var(--g);margin-bottom:8px;}
+.highlight p{color:#27500A;font-size:12px;line-height:1.5;margin:0;}
+.warn-box{background:#FDF6E8;border-radius:10px;padding:10px 12px;border-left:3px solid #C8841A;margin-bottom:8px;}
+.warn-box p{color:#633806;font-size:12px;line-height:1.5;margin:0;}
+
+.accept-bar{background:var(--wh);border-top:1px solid var(--br);padding:12px 14px;}
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;cursor:pointer;}
+.custom-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--br);background:var(--wh);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
+.custom-check.checked{background:var(--g);border-color:var(--g);}
+.custom-check i{font-size:13px;color:#fff;display:none;}
+.custom-check.checked i{display:block;}
+.check-lbl{font-size:12px;color:var(--mu);line-height:1.4;}
+.check-lbl a{color:var(--g);font-weight:700;cursor:pointer;}
+.accept-btn{background:var(--g);color:#fff;font-size:14px;font-weight:900;border:none;border-radius:16px;padding:14px;width:100%;cursor:pointer;opacity:.45;transition:.2s;font-family:'Nunito',sans-serif;}
+.accept-btn.ready{opacity:1;}
+.accept-btn.done{background:#27500A;}
+
+.success-view{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;min-height:400px;}
+.success-view.show{display:flex;}
+.success-view h3{font-size:20px;font-weight:900;color:var(--tx);margin-bottom:8px;}
+.success-view p{font-size:13px;color:var(--mu);line-height:1.6;margin-bottom:20px;}
+.date-badge{background:var(--gl);border-radius:12px;padding:10px 18px;border:1px solid var(--br);display:inline-block;font-size:12px;font-weight:800;color:#27500A;margin-bottom:16px;}
+</style>
+
+<div class="frame">
+  <div class="sbar">
+    <span>9:41</span>
+    <span style="color:#A8F0C0;font-weight:900;">🐾 PetPeti Naturalis</span>
+    <span style="color:#A8F0C0;">●●●</span>
+  </div>
+
+  <div class="scr on" id="s-terms">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div class="hdr-ico">📋</div>
+        <div>
+          <h2>Termos & Privacidade</h2>
+          <p>Leia antes de usar o PetPeti Naturalis</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab on" onclick="setTab(0)">Termos de Uso</button>
+      <button class="tab" onclick="setTab(1)">Privacidade</button>
+      <button class="tab" onclick="setTab(2)">Cookies</button>
+    </div>
+
+    <div class="scrollc">
+      <!-- TERMOS DE USO -->
+      <div id="tab0" class="pad">
+        <div style="background:#E3F2FD;border-radius:12px;padding:10px 12px;border:1px solid #B5D4F4;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+          <i class="ti ti-info-circle" style="color:#185FA5;font-size:18px;flex-shrink:0;" aria-hidden="true"></i>
+          <p style="font-size:11px;color:#0C447C;line-height:1.5;margin:0;">Última atualização: <strong>25 de maio de 2026</strong>. Ao usar o aplicativo, você concorda com estes termos.</p>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">📱</div>
+            <span class="sec-title">1. Sobre o aplicativo</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>O <strong>PetPeti Naturalis</strong> é um aplicativo educativo de treinamento e bem-estar animal, desenvolvido e operado por <strong>PetPeti Naturalis Ltda.</strong>, com sede no Brasil.</p>
+            <p>O aplicativo oferece conteúdo educativo sobre treinamento de animais domésticos (cães e gatos), receitas naturais de petiscos, guias de raças e ferramentas de acompanhamento do pet.</p>
+            <div class="warn-box"><p>⚠️ O conteúdo do app é de caráter <strong>educativo e informativo</strong>. Não substitui a orientação de médico veterinário credenciado.</p></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">👤</div>
+            <span class="sec-title">2. Cadastro e conta</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Para usar todas as funcionalidades, você deve criar uma conta com informações <strong>verídicas e atualizadas</strong>. São suas responsabilidades:</p>
+            <ul>
+              <li>Manter a senha em sigilo</li>
+              <li>Notificar imediatamente sobre uso não autorizado</li>
+              <li>Ter no mínimo 18 anos ou autorização dos responsáveis</li>
+              <li>Não criar contas falsas ou múltiplas contas</li>
+            </ul>
+            <p>Nos reservamos o direito de suspender contas que violem estes termos, sem aviso prévio em casos graves.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">💳</div>
+            <span class="sec-title">3. Planos e pagamentos</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <div class="highlight"><p>✅ O plano <strong>Gratuito</strong> é sempre grátis e sem expiração. Funcionalidades básicas sem custo.</p></div>
+            <p>O plano <strong>Premium</strong> é cobrado mensalmente via cartão de crédito, débito ou PIX. A assinatura é renovada automaticamente até cancelamento.</p>
+            <ul>
+              <li>Cancelamento: a qualquer momento, sem multa</li>
+              <li>Reembolso: até 7 dias após a cobrança (Código de Defesa do Consumidor)</li>
+              <li>Preços podem ser ajustados com aviso prévio de 30 dias</li>
+              <li>Não há devolução parcial por período não utilizado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">📸</div>
+            <span class="sec-title">4. Conteúdo do usuário</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Ao publicar fotos, vídeos, comentários ou qualquer conteúdo na comunidade do app, você concede ao PetPeti Naturalis licença <strong>não exclusiva</strong> para usar, exibir e distribuir esse conteúdo dentro da plataforma.</p>
+            <p>É proibido publicar:</p>
+            <ul>
+              <li>Conteúdo ofensivo, discriminatório ou de ódio</li>
+              <li>Imagens de maus-tratos a animais</li>
+              <li>Spam, propagandas não autorizadas</li>
+              <li>Conteúdo que viole direitos autorais de terceiros</li>
+              <li>Informações falsas sobre saúde animal</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🚫</div>
+            <span class="sec-title">5. Uso proibido</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>É estritamente proibido:</p>
+            <ul>
+              <li>Tentar hackear, invadir ou comprometer a segurança do app</li>
+              <li>Usar bots ou automação para interagir com a plataforma</li>
+              <li>Revender ou redistribuir conteúdo premium sem autorização</li>
+              <li>Usar o app para fins comerciais sem licença expressa</li>
+              <li>Coletar dados de outros usuários sem consentimento</li>
+            </ul>
+            <div class="warn-box"><p>⚠️ Violações podem resultar em suspensão imediata e, se aplicável, ação legal.</p></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">⚖️</div>
+            <span class="sec-title">6. Limitação de responsabilidade</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>O PetPeti Naturalis <strong>não se responsabiliza</strong> por:</p>
+            <ul>
+              <li>Resultados de treinos aplicados sem supervisão profissional</li>
+              <li>Reações adversas às receitas de petiscos em animais</li>
+              <li>Danos decorrentes de uso indevido do aplicativo</li>
+              <li>Interrupções temporárias do serviço por manutenção</li>
+            </ul>
+            <div class="highlight"><p>💚 Sempre consulte um médico veterinário para questões de saúde do seu pet.</p></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">📍</div>
+            <span class="sec-title">7. Foro e legislação</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Estes termos são regidos pelas leis brasileiras, em especial o <strong>Código de Defesa do Consumidor (Lei 8.078/1990)</strong> e a <strong>LGPD (Lei 13.709/2018)</strong>.</p>
+            <p>O foro eleito para dirimir controvérsias é o da comarca de <strong>São Paulo – SP</strong>, com renúncia a qualquer outro.</p>
+            <p>Contato: <strong>contato@petpetinaturalis.com.br</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRIVACIDADE -->
+      <div id="tab1" class="pad" style="display:none;">
+        <div style="background:var(--gl);border-radius:12px;padding:10px 12px;border:1px solid var(--br);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+          <i class="ti ti-shield-check" style="color:var(--g);font-size:18px;flex-shrink:0;" aria-hidden="true"></i>
+          <p style="font-size:11px;color:#27500A;line-height:1.5;margin:0;">Sua privacidade é nossa prioridade. Seguimos rigorosamente a <strong>LGPD</strong> (Lei Geral de Proteção de Dados — Lei 13.709/2018).</p>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">📦</div>
+            <span class="sec-title">Dados que coletamos</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p><strong>Dados fornecidos por você:</strong></p>
+            <ul>
+              <li>Nome, e-mail e senha ao criar a conta</li>
+              <li>Informações do pet (nome, raça, idade)</li>
+              <li>Fotos e vídeos que você publica</li>
+              <li>Mensagens enviadas no chat da comunidade</li>
+            </ul>
+            <p><strong>Dados coletados automaticamente:</strong></p>
+            <ul>
+              <li>Tipo de dispositivo e sistema operacional</li>
+              <li>Endereço IP e localização aproximada</li>
+              <li>Funcionalidades acessadas e tempo de uso</li>
+              <li>Dados de desempenho do aplicativo</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🎯</div>
+            <span class="sec-title">Como usamos seus dados</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <ul>
+              <li>Personalizar treinos e recomendações para seu pet</li>
+              <li>Enviar notificações e lembretes de treino (com sua permissão)</li>
+              <li>Melhorar as funcionalidades do aplicativo</li>
+              <li>Processar pagamentos com segurança</li>
+              <li>Cumprir obrigações legais</li>
+            </ul>
+            <div class="highlight"><p>✅ <strong>Não vendemos seus dados</strong> a terceiros para fins de marketing. Nunca.</p></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🤝</div>
+            <span class="sec-title">Compartilhamento de dados</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Podemos compartilhar dados apenas com:</p>
+            <ul>
+              <li><strong>Processadores de pagamento</strong> (ex: Stripe, Mercado Pago) — apenas dados de cobrança</li>
+              <li><strong>Provedores de nuvem</strong> (armazenamento seguro de dados)</li>
+              <li><strong>Autoridades legais</strong> — somente quando exigido por lei</li>
+            </ul>
+            <p>Todos os parceiros assinam acordos de confidencialidade e tratamento adequado de dados.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🔐</div>
+            <span class="sec-title">Segurança dos dados</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <ul>
+              <li>Criptografia SSL/TLS em todas as transmissões</li>
+              <li>Senhas armazenadas com hash bcrypt</li>
+              <li>Servidores em data centers certificados ISO 27001</li>
+              <li>Acesso restrito por autenticação de dois fatores internamente</li>
+              <li>Auditorias de segurança semestrais</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🧾</div>
+            <span class="sec-title">Seus direitos (LGPD)</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Conforme a LGPD, você tem direito a:</p>
+            <ul>
+              <li><strong>Acesso</strong> — ver todos os dados que temos sobre você</li>
+              <li><strong>Correção</strong> — atualizar informações incorretas</li>
+              <li><strong>Exclusão</strong> — solicitar apagamento dos seus dados</li>
+              <li><strong>Portabilidade</strong> — receber seus dados em formato legível</li>
+              <li><strong>Revogação</strong> — retirar consentimento a qualquer momento</li>
+              <li><strong>Oposição</strong> — se opor a tratamentos com os quais discorde</li>
+            </ul>
+            <p>Para exercer seus direitos: <strong>privacidade@petpetinaturalis.com.br</strong></p>
+            <p>Respondemos em até <strong>15 dias úteis</strong>.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🗓️</div>
+            <span class="sec-title">Retenção e exclusão</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Mantemos seus dados enquanto a conta estiver ativa. Após exclusão da conta:</p>
+            <ul>
+              <li>Dados pessoais removidos em até <strong>30 dias</strong></li>
+              <li>Dados anonimizados para estatísticas podem ser mantidos</li>
+              <li>Dados de cobrança mantidos por <strong>5 anos</strong> (obrigação fiscal)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- COOKIES -->
+      <div id="tab2" class="pad" style="display:none;">
+        <div style="background:#E3F2FD;border-radius:12px;padding:10px 12px;border:1px solid #B5D4F4;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+          <i class="ti ti-cookie" style="color:#185FA5;font-size:18px;flex-shrink:0;" aria-hidden="true"></i>
+          <p style="font-size:11px;color:#0C447C;line-height:1.5;margin:0;">Usamos cookies e tecnologias similares para melhorar sua experiência no app.</p>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🍪</div>
+            <span class="sec-title">Cookies essenciais</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <div class="highlight"><p>✅ Obrigatórios para o funcionamento do app. <strong>Não podem ser desativados.</strong></p></div>
+            <ul>
+              <li>Manter sua sessão ativa (login)</li>
+              <li>Segurança e prevenção de fraudes</li>
+              <li>Preferências básicas de idioma</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">📊</div>
+            <span class="sec-title">Cookies analíticos</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Nos ajudam a entender como você usa o app para melhorá-lo:</p>
+            <ul>
+              <li>Quais telas são mais acessadas</li>
+              <li>Tempo de permanência em cada seção</li>
+              <li>Erros e falhas técnicas</li>
+            </ul>
+            <p>Ferramenta usada: <strong>Firebase Analytics</strong> (Google). Dados anonimizados.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">🎯</div>
+            <span class="sec-title">Cookies de personalização</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <ul>
+              <li>Lembrar suas preferências de treino</li>
+              <li>Sugerir receitas baseadas no seu pet</li>
+              <li>Personalizar a home com base no uso</li>
+            </ul>
+            <p>Você pode desativar em <strong>Configurações → Privacidade → Personalização</strong>.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="sec-hdr" onclick="toggle(this)">
+            <div class="sec-ico">⚙️</div>
+            <span class="sec-title">Gerenciar preferências</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+          </div>
+          <div class="sec-body">
+            <p>Você pode gerenciar cookies a qualquer momento em:</p>
+            <div style="background:var(--gl);border-radius:10px;padding:10px 12px;margin:6px 0;">
+              <p style="font-size:12px;color:#27500A;font-weight:800;margin:0;">App → Perfil → Configurações → Privacidade → Cookies</p>
+            </div>
+            <p>A desativação de cookies analíticos e de personalização pode reduzir a qualidade da experiência, mas não impede o uso básico do app.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCEPT BAR -->
+    <div class="accept-bar" id="acceptBar">
+      <div id="successView" class="success-view">
+        <div style="font-size:56px;margin-bottom:12px;">✅</div>
+        <h3>Termos aceitos!</h3>
+        <p>Obrigado por ler e aceitar nossos termos. Seu pet está em boas mãos com o PetPeti Naturalis!</p>
+        <div class="date-badge" id="dateStamp"></div>
+        <div style="background:var(--gl);border-radius:14px;padding:12px 14px;border:1px solid var(--br);width:100%;text-align:left;">
+          <div style="font-size:11px;font-weight:800;color:#27500A;margin-bottom:4px;">Registro do aceite</div>
+          <div style="font-size:11px;color:#3B6D11;" id="acceptInfo"></div>
+        </div>
+      </div>
+      <div id="checkArea">
+        <div class="check-row" onclick="toggleCheck('c1')">
+          <div class="custom-check" id="c1"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <span class="check-lbl">Li e aceito os <a onclick="setTab(0)">Termos de Uso</a> do PetPeti Naturalis</span>
+        </div>
+        <div class="check-row" onclick="toggleCheck('c2')">
+          <div class="custom-check" id="c2"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <span class="check-lbl">Li e aceito a <a onclick="setTab(1)">Política de Privacidade</a> e o uso de dados conforme a LGPD</span>
+        </div>
+        <div class="check-row" onclick="toggleCheck('c3')">
+          <div class="custom-check" id="c3"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <span class="check-lbl">Aceito os <a onclick="setTab(2)">Cookies</a> analíticos e de personalização (opcional)</span>
+        </div>
+        <button class="accept-btn" id="acceptBtn" onclick="doAccept()" disabled>
+          Aceitar e continuar para o app
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tabs=['tab0','tab1','tab2'];
+const tabBtns=document.querySelectorAll('.tab');
+function setTab(i){
+  tabs.forEach(t=>document.getElementById(t).style.display='none');
+  document.getElementById(tabs[i]).style.display='block';
+  tabBtns.forEach((b,j)=>b.classList.toggle('on',i===j));
+}
+
+function toggle(hdr){
+  const body=hdr.nextElementSibling;
+  const isOpen=hdr.classList.contains('open');
+  document.querySelectorAll('.sec-hdr').forEach(h=>h.classList.remove('open'));
+  document.querySelectorAll('.sec-body').forEach(b=>b.classList.remove('show'));
+  if(!isOpen){hdr.classList.add('open');body.classList.add('show');}
+}
+
+const checks={c1:false,c2:false,c3:false};
+function toggleCheck(id){
+  checks[id]=!checks[id];
+  const el=document.getElementById(id);
+  el.classList.toggle('checked',checks[id]);
+  const ready=checks.c1&&checks.c2;
+  const btn=document.getElementById('acceptBtn');
+  btn.disabled=!ready;
+  btn.classList.toggle('ready',ready);
+}
+
+function doAccept(){
+  if(!checks.c1||!checks.c2)return;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('dateStamp').textContent='Aceito em '+dateStr+' às '+timeStr;
+  document.getElementById('acceptInfo').innerHTML=
+    'Versão: 1.0 — Maio 2026<br>'+
+    'Termos de Uso: ✓ Aceito<br>'+
+    'Política de Privacidade: ✓ Aceito (LGPD)<br>'+
+    'Cookies analíticos: '+(checks.c3?'✓ Aceito':'✗ Recusado');
+  document.getElementById('checkArea').style.display='none';
+  document.getElementById('successView').classList.add('show');
+}
+</script>

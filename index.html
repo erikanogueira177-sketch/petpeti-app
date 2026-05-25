@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PetPeti Naturalis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1a4d2e;
+    --green-mid: #2d7a4f;
+    --green-light: #4caf50;
+    --green-pale: #e8f5e9;
+    --gold: #c9a227;
+    --gold-light: #f0d060;
+    --cream: #faf6ee;
+    --brown: #6b3a2a;
+    --orange: #e67e22;
+    --white: #ffffff;
+    --text-dark: #1a2e1a;
+    --text-mid: #3d5a3d;
+    --shadow: 0 8px 32px rgba(0,0,0,0.13);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== APP SHELL ===== */
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--cream);
+    overflow: hidden;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    animation: fadeSlideIn 0.45s cubic-bezier(.22,.68,0,1.2);
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes checkIn {
+    from { opacity: 0; transform: scale(0) rotate(-30deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0); }
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar-wrap {
+    position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    height: 5px; background: rgba(0,0,0,.08); z-index: 100;
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--gold));
+    border-radius: 3px; transition: width .5s ease;
+  }
+
+  /* ===== SPLASH ===== */
+  #splash {
+    background: linear-gradient(160deg, var(--green-dark) 0%, #0d3320 60%, #1a4d2e 100%);
+    align-items: center; justify-content: center; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  #splash::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(201,162,39,.18) 0%, transparent 70%);
+  }
+  .splash-leaves {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: 
+      radial-gradient(circle 2px at 15% 20%, rgba(76,175,80,.4) 0%, transparent 100%),
+      radial-gradient(circle 3px at 80% 15%, rgba(201,162,39,.3) 0%, transparent 100%),
+      radial-gradient(circle 2px at 90% 70%, rgba(76,175,80,.3) 0%, transparent 100%),
+      radial-gradient(circle 2px at 10% 80%, rgba(201,162,39,.25) 0%, transparent 100%);
+  }
+  .splash-logo-wrap { animation: float 3s ease-in-out infinite; position: relative; z-index: 1; }
+  .splash-logo-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: white;
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 6px rgba(201,162,39,.3), 0 16px 48px rgba(0,0,0,.3);
+    overflow: hidden;
+  }
+  .splash-logo-circle img { width: 120px; height: 120px; object-fit: contain; }
+  .splash-logo-fallback {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 900;
+    color: var(--green-dark); line-height: 1;
+    text-align: center;
+  }
+  .splash-logo-fallback span { color: var(--gold); }
+  .splash-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px; font-weight: 900;
+    color: white; line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .splash-title span { color: var(--gold-light); }
+  .splash-sub {
+    font-size: 13px; color: rgba(255,255,255,.7);
+    letter-spacing: 3px; text-transform: uppercase;
+    margin: 8px 0 32px;
+  }
+  .splash-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(201,162,39,.2); border: 1px solid rgba(201,162,39,.4);
+    border-radius: 20px; padding: 6px 16px;
+    color: var(--gold-light); font-size: 12px; font-weight: 700;
+    margin-bottom: 40px;
+  }
+  .btn-splash {
+    background: linear-gradient(135deg, var(--gold), #e8b820);
+    color: var(--green-dark); font-weight: 900; font-size: 16px;
+    border: none; border-radius: 50px; padding: 16px 48px;
+    cursor: pointer; box-shadow: 0 8px 24px rgba(201,162,39,.4);
+    animation: pulse 2s ease-in-out infinite;
+    transition: transform .15s;
+  }
+  .btn-splash:active { transform: scale(.96); }
+  .splash-social-proof {
+    margin-top: 28px; color: rgba(255,255,255,.6); font-size: 12px;
+  }
+  .splash-avatars {
+    display: flex; justify-content: center; align-items: center;
+    gap: -8px; margin-bottom: 6px;
+  }
+  .splash-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+    border: 2px solid var(--green-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; margin-left: -6px;
+  }
+
+  /* ===== ONBOARDING SLIDES ===== */
+  #slides {
+    background: var(--green-dark);
+    position: relative; overflow: hidden;
+  }
+  .slides-container { position: relative; flex: 1; }
+  .slide {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 28px 32px; text-align: center;
+    min-height: 80vh;
+  }
+  .slide.active { display: flex; }
+  .slide-emoji { font-size: 72px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  .slide-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px; font-weight: 900; color: white; margin-bottom: 12px; line-height: 1.2;
+  }
+  .slide-title span { color: var(--gold-light); }
+  .slide-desc { font-size: 15px; color: rgba(255,255,255,.75); line-height: 1.65; margin-bottom: 20px; }
+  .slide-feature-pills {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px;
+  }
+  .pill {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 6px 14px; color: white; font-size: 12px; font-weight: 700;
+  }
+  .pill.gold { background: rgba(201,162,39,.2); border-color: rgba(201,162,39,.4); color: var(--gold-light); }
+  /* teaser lock icons */
+  .teaser-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,.08); border-radius: 12px;
+    padding: 10px 14px; margin-top: 8px; width: 100%;
+    text-align: left;
+  }
+  .teaser-row .lock { font-size: 16px; opacity: .5; }
+  .teaser-row span { color: rgba(255,255,255,.6); font-size: 13px; }
+  .teaser-row .badge-premium {
+    margin-left: auto; background: var(--gold); color: var(--green-dark);
+    font-size: 10px; font-weight: 900; border-radius: 6px; padding: 2px 7px;
+  }
+  /* slide dots */
+  .slide-dots {
+    display: flex; gap: 8px; justify-content: center; padding: 20px 0 28px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,.3); transition: all .3s;
+    cursor: pointer;
+  }
+  .dot.active { width: 24px; border-radius: 4px; background: var(--gold-light); }
+  .btn-next {
+    background: linear-gradient(135deg, var(--gold), #e8b820);
+    color: var(--green-dark); font-weight: 900; font-size: 15px;
+    border: none; border-radius: 50px; padding: 14px 40px;
+    cursor: pointer; transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 6px 20px rgba(201,162,39,.35);
+  }
+  .btn-next:active { transform: scale(.96); }
+
+  /* community cards */
+  .community-feed { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .community-card {
+    background: rgba(255,255,255,.1); border-radius: 12px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px; text-align: left;
+  }
+  .community-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#4caf50,#81c784); display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+  .community-name { color: white; font-weight: 800; font-size: 13px; }
+  .community-action { color: rgba(255,255,255,.65); font-size: 12px; }
+  .community-xp { margin-left: auto; color: var(--gold-light); font-weight: 900; font-size: 13px; }
+
+  /* ===== FORMS ===== */
+  .form-screen {
+    padding: 60px 24px 32px;
+    background: var(--cream);
+    flex: 1;
+  }
+  .form-header { margin-bottom: 28px; }
+  .form-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 900; color: var(--text-dark); line-height: 1.2;
+  }
+  .form-header h2 span { color: var(--green-mid); }
+  .form-header p { color: var(--text-mid); font-size: 14px; margin-top: 6px; }
+
+  .pet-type-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+  }
+  .pet-card {
+    background: white; border: 2.5px solid #e0e7e0; border-radius: var(--radius);
+    padding: 20px 12px; text-align: center; cursor: pointer;
+    transition: all .2s; box-shadow: 0 2px 12px rgba(0,0,0,.05);
+  }
+  .pet-card:hover { border-color: var(--green-mid); transform: translateY(-2px); }
+  .pet-card.selected { border-color: var(--green-mid); background: var(--green-pale); box-shadow: 0 0 0 3px rgba(45,122,79,.15); }
+  .pet-card .icon { font-size: 44px; margin-bottom: 8px; }
+  .pet-card .name { font-weight: 800; color: var(--text-dark); font-size: 14px; }
+  .pet-card .sub { font-size: 11px; color: var(--text-mid); margin-top: 2px; }
+
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-weight: 700; color: var(--text-dark); font-size: 13px; margin-bottom: 6px; display: block; }
+  .input-field {
+    width: 100%; padding: 14px 16px; border: 2px solid #dde8dd;
+    border-radius: 14px; font-family: 'Nunito', sans-serif; font-size: 15px;
+    background: white; color: var(--text-dark); outline: none;
+    transition: border-color .2s;
+  }
+  .input-field:focus { border-color: var(--green-mid); }
+
+  .goal-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .goal-item {
+    background: white; border: 2px solid #e0e7e0; border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    transition: all .2s;
+  }
+  .goal-item:hover { border-color: var(--green-mid); }
+  .goal-item.selected { border-color: var(--green-mid); background: var(--green-pale); }
+  .goal-item .g-icon { font-size: 24px; flex-shrink: 0; }
+  .goal-item .g-text .g-title { font-weight: 800; color: var(--text-dark); font-size: 14px; }
+  .goal-item .g-text .g-sub { font-size: 12px; color: var(--text-mid); }
+  .goal-item .check { margin-left: auto; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+  .goal-item.selected .check { background: var(--green-mid); border-color: var(--green-mid); color: white; font-size: 12px; }
+
+  /* ===== AI LOADING ===== */
+  #ai-loading {
+    background: var(--green-dark);
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .ai-loading-inner { padding: 40px 28px; }
+  .ai-logo { width: 80px; height: 80px; border-radius: 50%; background: white; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: 0 0 0 8px rgba(201,162,39,.2); }
+  .ai-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; color: white; margin-bottom: 8px; }
+  .ai-title span { color: var(--gold-light); }
+  .ai-sub { color: rgba(255,255,255,.65); font-size: 14px; margin-bottom: 36px; }
+  .ai-steps { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+  .ai-step { display: flex; align-items: center; gap: 14px; }
+  .ai-step-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: all .4s; }
+  .ai-step-icon.done { background: var(--green-light); animation: checkIn .4s ease; }
+  .ai-step-text { color: rgba(255,255,255,.7); font-size: 14px; transition: color .4s; }
+  .ai-step-text.done { color: white; font-weight: 700; }
+  .ai-bar { height: 6px; background: rgba(255,255,255,.12); border-radius: 3px; margin-top: 32px; overflow: hidden; }
+  .ai-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--green-light), var(--gold)); border-radius: 3px; transition: width .6s ease; }
+
+  /* ===== PREMIUM ===== */
+  #premium { background: linear-gradient(160deg, var(--green-dark) 0%, #0d3320 100%); }
+  .premium-inner { padding: 56px 24px 32px; flex: 1; display: flex; flex-direction: column; }
+  .premium-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(90deg, var(--gold), #e8b820); color: var(--green-dark);
+    font-weight: 900; font-size: 12px; border-radius: 20px; padding: 5px 14px;
+    margin-bottom: 16px; align-self: flex-start;
+  }
+  .premium-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: white; line-height: 1.25; margin-bottom: 6px; }
+  .premium-title span { color: var(--gold-light); }
+  .premium-sub { color: rgba(255,255,255,.65); font-size: 13px; margin-bottom: 24px; }
+  .premium-plan-card {
+    background: rgba(255,255,255,.07); border: 2px solid rgba(201,162,39,.3);
+    border-radius: 20px; padding: 20px; margin-bottom: 12px; cursor: pointer;
+    transition: all .2s;
+  }
+  .premium-plan-card.highlight { border-color: var(--gold); background: rgba(201,162,39,.1); }
+  .premium-plan-card.selected { border-color: var(--gold-light); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
+  .plan-row { display: flex; align-items: center; justify-content: space-between; }
+  .plan-name { font-weight: 900; color: white; font-size: 16px; }
+  .plan-tag { font-size: 10px; font-weight: 900; background: var(--gold); color: var(--green-dark); border-radius: 6px; padding: 2px 8px; }
+  .plan-price { color: var(--gold-light); font-size: 22px; font-weight: 900; }
+  .plan-price sub { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.5); }
+  .plan-desc { color: rgba(255,255,255,.55); font-size: 12px; margin-top: 4px; }
+  .premium-features { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+  .pf { display: flex; align-items: center; gap: 10px; }
+  .pf .pf-icon { font-size: 18px; }
+  .pf .pf-text { color: rgba(255,255,255,.8); font-size: 13px; }
+  .pf .pf-text strong { color: white; }
+  .urgency-box {
+    background: rgba(255,107,0,.12); border: 1px solid rgba(255,107,0,.3);
+    border-radius: 12px; padding: 12px 14px; margin: 12px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .urgency-box .ub-icon { font-size: 22px; }
+  .urgency-box .ub-text { font-size: 12px; color: rgba(255,255,255,.75); }
+  .urgency-box .ub-text strong { color: #ffaa55; }
+  .stat-row { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+  .stat-row span { font-size: 11px; color: rgba(255,255,255,.5); }
+  .stars { color: var(--gold-light); font-size: 13px; }
+  .btn-premium {
+    background: linear-gradient(135deg, var(--gold), #e8b820);
+    color: var(--green-dark); font-weight: 900; font-size: 16px;
+    border: none; border-radius: 50px; padding: 16px; width: 100%;
+    cursor: pointer; box-shadow: 0 8px 24px rgba(201,162,39,.35);
+    transition: transform .15s;
+  }
+  .btn-premium:active { transform: scale(.97); }
+  .btn-free {
+    background: transparent; color: rgba(255,255,255,.45); font-size: 13px;
+    border: none; cursor: pointer; padding: 12px; width: 100%;
+    text-decoration: underline; font-family: 'Nunito', sans-serif;
+  }
+  .free-limits { font-size: 11px; color: rgba(255,255,255,.3); text-align: center; margin-top: 4px; }
+
+  /* ===== SUCCESS / HOME ===== */
+  #success { background: var(--cream); }
+  .success-hero {
+    background: linear-gradient(160deg, var(--green-dark), #0d3320);
+    padding: 56px 24px 32px; text-align: center;
+  }
+  .success-check { width: 80px; height: 80px; border-radius: 50%; background: var(--green-light); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: 0 0 0 12px rgba(76,175,80,.15); animation: checkIn .6s ease; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: white; }
+  .success-title span { color: var(--gold-light); }
+  .success-sub { color: rgba(255,255,255,.65); font-size: 14px; margin-top: 6px; }
+  .plan-summary {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px; padding: 14px; margin-top: 20px; text-align: left;
+  }
+  .plan-summary-title { color: rgba(255,255,255,.5); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .plan-summary-item { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; margin-bottom: 5px; }
+
+  /* NAV BAR */
+  .nav-bar {
+    display: flex; background: white; border-top: 1px solid #e8ede8;
+    padding: 8px 0 4px; position: sticky; bottom: 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.07);
+  }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
+  .nav-item .nav-icon { font-size: 22px; }
+  .nav-item .nav-label { font-size: 10px; font-weight: 700; color: #aaa; }
+  .nav-item.active .nav-label { color: var(--green-mid); }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+  .nav-badge { background: #e53935; color: white; font-size: 10px; font-weight: 900; border-radius: 10px; padding: 1px 5px; position: absolute; top: 0; right: 0; }
+
+  /* HOME FEED */
+  .home-content { flex: 1; padding: 20px 20px 80px; overflow-y: auto; }
+  .home-greeting { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--text-dark); margin-bottom: 4px; }
+  .home-greeting span { color: var(--green-mid); }
+  .home-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 20px; }
+  .streak-card {
+    background: linear-gradient(135deg, var(--green-dark), #0d3320);
+    border-radius: 20px; padding: 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .streak-flame { font-size: 40px; animation: float 2.5s ease-in-out infinite; }
+  .streak-info .streak-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: white; }
+  .streak-info .streak-label { color: rgba(255,255,255,.6); font-size: 12px; }
+  .streak-xp { margin-left: auto; text-align: right; }
+  .streak-xp .xp-num { font-size: 20px; font-weight: 900; color: var(--gold-light); }
+  .streak-xp .xp-label { font-size: 11px; color: rgba(255,255,255,.5); }
+
+  .section-title { font-weight: 900; color: var(--text-dark); font-size: 16px; margin-bottom: 12px; }
+  .products-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; scrollbar-width: none; }
+  .products-scroll::-webkit-scrollbar { display: none; }
+  .product-card {
+    flex-shrink: 0; width: 150px; background: white; border-radius: 16px;
+    overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    cursor: pointer; transition: transform .2s;
+  }
+  .product-card:hover { transform: translateY(-3px); }
+  .product-img { height: 120px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 50px; overflow: hidden; }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-info { padding: 10px 10px 12px; }
+  .product-name { font-weight: 800; font-size: 12px; color: var(--text-dark); }
+  .product-badge { font-size: 10px; color: var(--green-mid); font-weight: 700; margin-top: 2px; }
+  .product-cta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .product-price { font-weight: 900; font-size: 14px; color: var(--green-mid); }
+  .btn-add { background: var(--green-mid); color: white; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+  /* TRAINING VIDEO SECTION */
+  .training-section { margin-bottom: 20px; }
+  .training-card {
+    background: white; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08); margin-bottom: 12px; cursor: pointer;
+  }
+  .training-thumb {
+    height: 160px; background: linear-gradient(135deg, var(--green-dark), #0d3320);
+    display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden;
+  }
+  .training-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .training-thumb .play-btn {
+    position: absolute; width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center;
+    font-size: 22px; box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    transition: transform .2s;
+  }
+  .training-card:hover .play-btn { transform: scale(1.1); }
+  .training-lock {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(201,162,39,.9); color: var(--green-dark); font-size: 10px; font-weight: 900;
+    border-radius: 8px; padding: 3px 8px; display: flex; align-items: center; gap: 4px;
+  }
+  .training-info { padding: 12px 14px; }
+  .training-title { font-weight: 800; color: var(--text-dark); font-size: 14px; margin-bottom: 4px; }
+  .training-meta { display: flex; align-items: center; gap: 10px; }
+  .training-meta span { font-size: 11px; color: var(--text-mid); }
+  .training-meta .diff { background: var(--green-pale); color: var(--green-mid); border-radius: 6px; padding: 2px 7px; font-weight: 700; font-size: 10px; }
+
+  /* MODAL / VIDEO PLAYER */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75);
+    z-index: 200; align-items: center; justify-content: center;
+    animation: fadeSlideIn .3s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: white; border-radius: 24px; overflow: hidden;
+    max-width: 400px; width: 92%; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-video { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
+  .modal-video video { width: 100%; height: 100%; }
+  .modal-video-placeholder {
+    width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg,var(--green-dark),#0d3320);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+  }
+  .modal-video-placeholder .big-play { font-size: 60px; margin-bottom: 12px; }
+  .modal-body { padding: 20px; }
+  .modal-close { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,.4); border: none; color: white; font-size: 20px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; }
+  .modal-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .modal-step { display: flex; gap: 12px; align-items: flex-start; }
+  .modal-step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--green-light); color: white; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .modal-step-text { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+  .modal-treat-tip { background: var(--green-pale); border-radius: 12px; padding: 12px; margin-top: 12px; font-size: 12px; color: var(--green-dark); }
+  .modal-treat-tip strong { display: block; margin-bottom: 4px; }
+
+  /* ===== BOTTOM BUTTON ===== */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+    color: white; font-weight: 900; font-size: 15px;
+    border: none; border-radius: 50px; padding: 15px;
+    cursor: pointer; width: 100%; box-shadow: 0 6px 20px rgba(45,122,79,.3);
+    transition: transform .15s;
+  }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-secondary {
+    background: white; color: var(--green-mid); font-weight: 800; font-size: 14px;
+    border: 2px solid var(--green-mid); border-radius: 50px; padding: 13px;
+    cursor: pointer; width: 100%; transition: all .15s;
+  }
+  .btn-secondary:active { background: var(--green-pale); }
+
+  /* ===== STEP INDICATOR ===== */
+  .step-indicator {
+    display: flex; align-items: center; gap: 8px; padding: 60px 24px 8px;
+  }
+  .step-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #ccc;
+    transition: all .3s;
+  }
+  .step-dot.done { background: var(--green-mid); }
+  .step-dot.active { width: 20px; border-radius: 4px; background: var(--green-mid); }
+  .step-text { font-size: 12px; color: var(--text-mid); margin-left: 4px; }
+
+  /* MOBILE SAFE */
+  @media (max-width: 430px) { .app { width: 100%; } }
+
+  /* IMAGE GALLERY */
+  .gallery-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 0 8px; scrollbar-width: none; }
+  .gallery-scroll::-webkit-scrollbar { display: none; }
+  .gallery-img { flex-shrink: 0; width: 120px; height: 90px; border-radius: 12px; overflow: hidden; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,.1); cursor: pointer; transition: transform .2s; }
+  .gallery-img:hover { transform: scale(1.04); }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+
+  <!-- ===================== SPLASH ===================== -->
+  <div class="screen active" id="splash">
+    <div class="splash-leaves"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding:40px 28px;">
+      <div class="splash-logo-wrap">
+        <div class="splash-logo-circle">
+          <div class="splash-logo-fallback">
+            🐾<br><span style="font-family:'Playfair Display',serif;color:var(--green-dark);font-size:18px;font-weight:900">Pet<span style="color:var(--gold)">Peti</span></span>
+          </div>
+        </div>
+        <div class="splash-title">Pet<span>Peti</span></div>
+        <div class="splash-sub">Naturalis</div>
+      </div>
+      <div class="splash-badge">🌿 100% Natural • Feito com Amor</div>
+      <button class="btn-splash" onclick="goTo('slides')">Começar jornada do meu pet 🐾</button>
+      <div class="splash-social-proof">
+        <div class="splash-avatars">
+          <div class="splash-avatar">🐕</div>
+          <div class="splash-avatar">🐈</div>
+          <div class="splash-avatar">🐩</div>
+          <div class="splash-avatar">🦮</div>
+        </div>
+        <p>+12.000 tutores já transformaram a saúde do pet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDES ===================== -->
+  <div class="screen" id="slides">
+    <div style="flex:1;position:relative;">
+
+      <div class="slide active" id="slide-0">
+        <div class="slide-emoji">🌿</div>
+        <div class="slide-title">Petiscos que <span>nutrem</span> de verdade</div>
+        <div class="slide-desc">Feitos com frango, sardinha e fígado fresquinhos. Sem conservantes, sem corantes, sem aromatizantes artificiais.</div>
+        <div class="slide-feature-pills">
+          <span class="pill">✅ 100% Natural</span>
+          <span class="pill">✅ Sem conservantes</span>
+          <span class="pill gold">🔓 +120 receitas exclusivas</span>
+        </div>
+        <div style="width:100%;margin-top:14px;">
+          <div class="teaser-row">
+            <span class="lock">🔒</span>
+            <span>Receitas naturais artesanais</span>
+            <span class="badge-premium">PREMIUM</span>
+          </div>
+          <div class="teaser-row">
+            <span class="lock">🔒</span>
+            <span>Treinamentos guiados por IA</span>
+            <span class="badge-premium">PREMIUM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-1">
+        <div class="slide-emoji">🏆</div>
+        <div class="slide-title">Treinadores usam a <span>nossa IA</span> todo dia</div>
+        <div class="slide-desc">Planos de treinamento personalizados para o seu pet com base na raça, idade e comportamento. Resultados reais em poucos dias.</div>
+        <div class="community-feed">
+          <div class="community-card">
+            <div class="community-avatar">🐕</div>
+            <div>
+              <div class="community-name">Thor aprendeu "sentar" hoje!</div>
+              <div class="community-action">Golden Retriever • 2 anos</div>
+            </div>
+            <div class="community-xp">+50 XP</div>
+          </div>
+          <div class="community-card">
+            <div class="community-avatar">🐈</div>
+            <div>
+              <div class="community-name">Mia completou 7 dias de treino 🎉</div>
+              <div class="community-action">Persa • 3 anos</div>
+            </div>
+            <div class="community-xp">+120 XP</div>
+          </div>
+          <div class="community-card">
+            <div class="community-avatar">🐩</div>
+            <div>
+              <div class="community-name">Bob não destrói mais os móveis!</div>
+              <div class="community-action">Poodle • 1 ano</div>
+            </div>
+            <div class="community-xp">+80 XP</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-2">
+        <div class="slide-emoji">📈</div>
+        <div class="slide-title"><span>Resultados visíveis</span> em dias</div>
+        <div class="slide-desc">Pelagem mais brilhante, mais energia e disposição, dentes mais limpos. Tutores aprovam — veja a diferença você mesmo.</div>
+        <div class="slide-feature-pills">
+          <span class="pill">🦷 Higiene dental</span>
+          <span class="pill">✨ Pelagem brilhante</span>
+          <span class="pill">⚡ Mais energia</span>
+          <span class="pill">🛡️ Imunidade</span>
+        </div>
+        <div style="width:100%;margin-top:16px;">
+          <div style="background:rgba(255,255,255,.08);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:32px;">⭐</div>
+            <div>
+              <div style="color:white;font-weight:900;font-size:15px;">4.9 / 5.0</div>
+              <div style="color:rgba(255,255,255,.55);font-size:12px;">+2.400 avaliações de tutores</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="slide-dots">
+      <div class="dot active" onclick="goSlide(0)"></div>
+      <div class="dot" onclick="goSlide(1)"></div>
+      <div class="dot" onclick="goSlide(2)"></div>
+    </div>
+    <div style="padding:0 28px 32px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-next" id="slidesNextBtn" onclick="slidesNext()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 1: PET TYPE ===================== -->
+  <div class="screen" id="step-pet">
+    <div class="step-indicator">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <span class="step-text">Passo 1 de 4</span>
+    </div>
+    <div class="form-screen" style="padding-top:12px;">
+      <div class="form-header">
+        <h2>Qual é o seu <span>pet?</span></h2>
+        <p>Vamos personalizar a jornada para vocês 💚</p>
+      </div>
+      <div class="pet-type-grid">
+        <div class="pet-card" onclick="selectPet('cachorro')" id="pet-cachorro">
+          <div class="icon">🐕</div>
+          <div class="name">Cachorro</div>
+          <div class="sub">Cão doméstico</div>
+        </div>
+        <div class="pet-card" onclick="selectPet('gato')" id="pet-gato">
+          <div class="icon">🐈</div>
+          <div class="name">Gato</div>
+          <div class="sub">Felino doméstico</div>
+        </div>
+        <div class="pet-card" onclick="selectPet('coelho')" id="pet-coelho">
+          <div class="icon">🐰</div>
+          <div class="name">Coelho</div>
+          <div class="sub">Pequeno porte</div>
+        </div>
+        <div class="pet-card" onclick="selectPet('outro')" id="pet-outro">
+          <div class="icon">🐾</div>
+          <div class="name">Outro</div>
+          <div class="sub">Exóticos & mais</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Nome do pet 🐾</label>
+        <input class="input-field" type="text" id="petName" placeholder="Ex: Luna, Thor, Mel..." oninput="updatePetName()">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Raça (opcional)</label>
+        <input class="input-field" type="text" id="petBreed" placeholder="Ex: Golden Retriever, SRD...">
+      </div>
+      <div style="margin-top:8px;">
+        <button class="btn-primary" onclick="goTo('step-age')">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 2: AGE ===================== -->
+  <div class="screen" id="step-age">
+    <div class="step-indicator">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <span class="step-text">Passo 2 de 4</span>
+    </div>
+    <div class="form-screen" style="padding-top:12px;">
+      <div class="form-header">
+        <h2>Qual a <span>idade</span> do <span id="petNameAge">seu pet</span>?</h2>
+        <p>A nutrição ideal muda com a fase de vida</p>
+      </div>
+      <div class="pet-type-grid">
+        <div class="pet-card" onclick="selectAge('filhote')" id="age-filhote">
+          <div class="icon">🍼</div>
+          <div class="name">Filhote</div>
+          <div class="sub">Até 1 ano</div>
+        </div>
+        <div class="pet-card" onclick="selectAge('jovem')" id="age-jovem">
+          <div class="icon">⚡</div>
+          <div class="name">Jovem</div>
+          <div class="sub">1 a 3 anos</div>
+        </div>
+        <div class="pet-card" onclick="selectAge('adulto')" id="age-adulto">
+          <div class="icon">💪</div>
+          <div class="name">Adulto</div>
+          <div class="sub">3 a 7 anos</div>
+        </div>
+        <div class="pet-card" onclick="selectAge('senior')" id="age-senior">
+          <div class="icon">🌟</div>
+          <div class="name">Sênior</div>
+          <div class="sub">7+ anos</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" onclick="goTo('step-goals')">Próximo →</button>
+        <button class="btn-secondary" onclick="goTo('step-pet')">← Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3: GOALS ===================== -->
+  <div class="screen" id="step-goals">
+    <div class="step-indicator">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <span class="step-text">Passo 3 de 4</span>
+    </div>
+    <div class="form-screen" style="padding-top:12px;">
+      <div class="form-header">
+        <h2>Quais são seus <span>objetivos?</span></h2>
+        <p>Escolha todos que se aplicam</p>
+      </div>
+      <div class="goal-grid">
+        <div class="goal-item" onclick="toggleGoal(this)">
+          <div class="g-icon">🦷</div>
+          <div class="g-text">
+            <div class="g-title">Higiene e saúde dental</div>
+            <div class="g-sub">Dentes mais limpos e hálito fresco</div>
+          </div>
+          <div class="check"></div>
+        </div>
+        <div class="goal-item" onclick="toggleGoal(this)">
+          <div class="g-icon">✨</div>
+          <div class="g-text">
+            <div class="g-title">Pelagem mais brilhante</div>
+            <div class="g-sub">Rica em ômega-3 e aminoácidos</div>
+          </div>
+          <div class="check"></div>
+        </div>
+        <div class="goal-item" onclick="toggleGoal(this)">
+          <div class="g-icon">🧠</div>
+          <div class="g-text">
+            <div class="g-title">Treinamento e obediência</div>
+            <div class="g-sub">Comandos básicos e avançados</div>
+          </div>
+          <div class="check"></div>
+        </div>
+        <div class="goal-item" onclick="toggleGoal(this)">
+          <div class="g-icon">⚡</div>
+          <div class="g-text">
+            <div class="g-title">Mais energia e vitalidade</div>
+            <div class="g-sub">Disposição e bem-estar diário</div>
+          </div>
+          <div class="check"></div>
+        </div>
+        <div class="goal-item" onclick="toggleGoal(this)">
+          <div class="g-icon">🛡️</div>
+          <div class="g-text">
+            <div class="g-title">Imunidade fortalecida</div>
+            <div class="g-sub">Vitaminas A, B12 e minerais</div>
+          </div>
+          <div class="check"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" onclick="goTo('ai-loading')">Criar meu plano personalizado 🤖</button>
+        <button class="btn-secondary" onclick="goTo('step-age')">← Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== AI LOADING ===================== -->
+  <div class="screen" id="ai-loading">
+    <div class="ai-loading-inner" style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div class="ai-logo">🤖</div>
+      <div class="ai-title">Criando plano especial<br>para <span id="aiPetName">seu pet</span>...</div>
+      <div class="ai-sub">Nossa IA está analisando seu perfil</div>
+      <div class="ai-steps">
+        <div class="ai-step" id="aistep-0">
+          <div class="ai-step-icon" id="aiicon-0">📊</div>
+          <div class="ai-step-text" id="aitext-0">Analisando idade e raça...</div>
+        </div>
+        <div class="ai-step" id="aistep-1">
+          <div class="ai-step-icon" id="aiicon-1">🎯</div>
+          <div class="ai-step-text" id="aitext-1">Adaptando treinos aos seus objetivos...</div>
+        </div>
+        <div class="ai-step" id="aistep-2">
+          <div class="ai-step-icon" id="aiicon-2">🍖</div>
+          <div class="ai-step-text" id="aitext-2">Selecionando petiscos ideais...</div>
+        </div>
+        <div class="ai-step" id="aistep-3">
+          <div class="ai-step-icon" id="aiicon-3">📅</div>
+          <div class="ai-step-text" id="aitext-3">Preparando rotina personalizada...</div>
+        </div>
+      </div>
+      <div class="ai-bar"><div class="ai-bar-fill" id="aiBarFill"></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== PREMIUM ===================== -->
+  <div class="screen" id="premium">
+    <div class="premium-inner">
+      <div class="premium-badge">✨ PLANO PERSONALIZADO PRONTO</div>
+      <div class="premium-title">Plano especial para <span id="premiumPetName">seu pet</span> baseado em:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 16px;">
+        <span class="pill" id="plan-age" style="background:rgba(76,175,80,.15);border-color:rgba(76,175,80,.3);">✅ Filhote</span>
+        <span class="pill" style="background:rgba(76,175,80,.15);border-color:rgba(76,175,80,.3);">✅ Treinamento</span>
+        <span class="pill" style="background:rgba(76,175,80,.15);border-color:rgba(76,175,80,.3);">✅ Saúde dental</span>
+      </div>
+
+      <div class="urgency-box">
+        <div class="ub-icon">🔥</div>
+        <div class="ub-text"><strong>Oferta de boas-vindas: 7 dias grátis</strong><br>+ Ebook de receitas naturais premium hoje</div>
+      </div>
+
+      <div class="premium-plan-card highlight selected" onclick="selectPlan(this)">
+        <div class="plan-row">
+          <div>
+            <div class="plan-name">Premium Anual</div>
+            <div class="plan-desc">Mais popular entre tutores</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="plan-tag">MELHOR VALOR</div>
+            <div class="plan-price">R$9,90<sub>/mês</sub></div>
+          </div>
+        </div>
+      </div>
+      <div class="premium-plan-card" onclick="selectPlan(this)">
+        <div class="plan-row">
+          <div>
+            <div class="plan-name">Premium Mensal</div>
+            <div class="plan-desc">Cancele quando quiser</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="plan-price">R$19,90<sub>/mês</sub></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-features">
+        <div class="pf"><span class="pf-icon">🤖</span><span class="pf-text"><strong>IA Pet</strong> — respostas para qualquer dúvida comportamental</span></div>
+        <div class="pf"><span class="pf-icon">🎥</span><span class="pf-text"><strong>Vídeos de treinamento</strong> ilimitados</span></div>
+        <div class="pf"><span class="pf-icon">🍖</span><span class="pf-text"><strong>+120 receitas naturais</strong> exclusivas</span></div>
+        <div class="pf"><span class="pf-icon">📅</span><span class="pf-text"><strong>Rotina diária</strong> personalizada</span></div>
+        <div class="pf"><span class="pf-icon">🏅</span><span class="pf-text"><strong>Certificados</strong> desbloqueáveis</span></div>
+        <div class="pf"><span class="pf-icon">🏆</span><span class="pf-text"><strong>Ranking</strong> e comunidade de tutores</span></div>
+      </div>
+
+      <div class="stat-row">
+        <span class="stars">★★★★★</span>
+        <span>Mais de 82% dos pets evoluem mais rápido com planos guiados</span>
+      </div>
+
+      <button class="btn-premium" onclick="goTo('success')">Desbloquear evolução do meu pet 🚀</button>
+      <button class="btn-free" onclick="goTo('success')">Continuar com o plano grátis</button>
+      <div class="free-limits">Grátis: 3 treinos/mês • comunidade limitada • sem IA</div>
+    </div>
+  </div>
+
+  <!-- ===================== SUCCESS / HOME ===================== -->
+  <div class="screen" id="success">
+    <div class="success-hero">
+      <div class="success-check">✅</div>
+      <div class="success-title">Jornada da <span id="successPetName">Luna</span><br>começa agora! 🎉</div>
+      <div class="success-sub">Plano personalizado criado com sucesso</div>
+      <div class="plan-summary">
+        <div class="plan-summary-title">Seu plano inclui</div>
+        <div class="plan-summary-item">✅ Petiscos naturais recomendados para sua fase</div>
+        <div class="plan-summary-item">✅ 7 dias grátis Premium desbloqueados</div>
+        <div class="plan-summary-item">✅ Ebook de receitas naturais</div>
+        <div class="plan-summary-item">✅ Treinamentos em vídeo personalizados</div>
+      </div>
+    </div>
+    <div class="home-content">
+      <div class="home-greeting" id="homeGreeting">Olá, tutor da <span>Luna</span>! 👋</div>
+      <div class="home-sub">Comece sua jornada hoje — dia 1 de muitos!</div>
+
+      <!-- STREAK -->
+      <div class="streak-card">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-info">
+          <div class="streak-num">1</div>
+          <div class="streak-label">dias de streak</div>
+        </div>
+        <div class="streak-xp">
+          <div class="xp-num">50 XP</div>
+          <div class="xp-label">pontos hoje</div>
+        </div>
+      </div>
+
+      <!-- PRODUTOS -->
+      <div class="section-title">🍖 Petiscos recomendados</div>
+      <div class="products-scroll">
+        <div class="product-card">
+          <div class="product-img" style="background:#fff8e1;">
+            <span style="font-size:48px;">🍗</span>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Crunch Frango Natural</div>
+            <div class="product-badge">✅ Ideal para filhotes</div>
+            <div class="product-cta">
+              <div class="product-price">R$24,90</div>
+              <button class="btn-add">+ Comprar</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="product-img" style="background:#e8f5e9;">
+            <span style="font-size:48px;">🐟</span>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Crunch Sardinha</div>
+            <div class="product-badge">✅ Ômega-3 e dental</div>
+            <div class="product-cta">
+              <div class="product-price">R$26,90</div>
+              <button class="btn-add">+ Comprar</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="product-img" style="background:#fce4ec;">
+            <span style="font-size:48px;">🥩</span>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Crunch Fígado de Boi</div>
+            <div class="product-badge">⚡ Rico em ferro</div>
+            <div class="product-cta">
+              <div class="product-price">R$24,90</div>
+              <button class="btn-add">+ Comprar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING VIDEOS -->
+      <div class="section-title">🎥 Treinamentos em vídeo</div>
+      <div class="training-section">
+
+        <div class="training-card" onclick="openVideoModal('sentar')">
+          <div class="training-thumb">
+            <span style="font-size:60px;">🐕</span>
+            <div class="play-btn">▶️</div>
+          </div>
+          <div class="training-info">
+            <div class="training-title">Comando "Sentar" — do zero ao resultado</div>
+            <div class="training-meta">
+              <span>⏱ 8 min</span>
+              <span class="diff">Iniciante</span>
+              <span>🍖 usa petisco</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="training-card" onclick="openVideoModal('ficar')">
+          <div class="training-thumb" style="background:linear-gradient(135deg,#1a4d2e,#2d7a4f);">
+            <span style="font-size:60px;">🐕‍🦺</span>
+            <div class="play-btn">▶️</div>
+            <div class="training-lock">🔒 PREMIUM</div>
+          </div>
+          <div class="training-info">
+            <div class="training-title">Comando "Ficar" com distância</div>
+            <div class="training-meta">
+              <span>⏱ 12 min</span>
+              <span class="diff" style="background:#fff3e0;color:#e67e22;">Intermediário</span>
+              <span>🍖 usa petisco</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="training-card" onclick="openVideoModal('deitar')">
+          <div class="training-thumb" style="background:linear-gradient(135deg,#4a1942,#7b2d75);">
+            <span style="font-size:60px;">🦮</span>
+            <div class="play-btn">▶️</div>
+            <div class="training-lock">🔒 PREMIUM</div>
+          </div>
+          <div class="training-info">
+            <div class="training-title">Passeio no cinto sem puxar</div>
+            <div class="training-meta">
+              <span>⏱ 15 min</span>
+              <span class="diff" style="background:#fff3e0;color:#e67e22;">Intermediário</span>
+              <span>🍖 usa petisco</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOTO GALERIA MARKETING -->
+      <div class="section-title">📸 Veja a diferença</div>
+      <div class="gallery-scroll" style="margin-bottom:20px;">
+        <div style="flex-shrink:0;width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;font-size:40px;">🐕</div>
+        <div style="flex-shrink:0;width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);display:flex;align-items:center;justify-content:center;font-size:40px;">🦷</div>
+        <div style="flex-shrink:0;width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#e8eaf6,#c5cae9);display:flex;align-items:center;justify-content:center;font-size:40px;">✨</div>
+        <div style="flex-shrink:0;width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#fce4ec,#f8bbd9);display:flex;align-items:center;justify-content:center;font-size:40px;">🐾</div>
+      </div>
+
+      <!-- IA PET -->
+      <div style="background:linear-gradient(135deg,var(--green-dark),#0d3320);border-radius:20px;padding:18px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="font-size:32px;">🤖</div>
+          <div>
+            <div style="color:white;font-weight:900;font-size:15px;">IA Pet — Tire suas dúvidas</div>
+            <div style="color:rgba(255,255,255,.6);font-size:12px;">Comportamento, nutrição, treinos</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:12px;margin-bottom:12px;">
+          <div style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:6px;">Exemplo de pergunta:</div>
+          <div style="color:white;font-size:13px;font-style:italic;">"Meu cão destrói tudo quando saio de casa"</div>
+        </div>
+        <button onclick="openIAModal()" style="width:100%;background:var(--gold);color:var(--green-dark);font-weight:900;font-size:14px;border:none;border-radius:12px;padding:12px;cursor:pointer;">
+          Perguntar para a IA Pet 🤖
+        </button>
+      </div>
+
+    </div>
+
+    <!-- NAV BAR -->
+    <div class="nav-bar">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">Início</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">🎥</div>
+        <div class="nav-label">Treinos</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">🍖</div>
+        <div class="nav-label">Petiscos</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">🏆</div>
+        <div class="nav-label">Ranking</div>
+      </div>
+      <div class="nav-item" style="position:relative;">
+        <div class="nav-icon">👤</div>
+        <div class="nav-label">Perfil</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== VIDEO MODAL ===================== -->
+  <div class="modal-overlay" id="videoModal">
+    <div class="modal-box" style="position:relative;">
+      <div class="modal-video-placeholder" id="modalVideoArea">
+        <div class="big-play">▶️</div>
+        <div style="color:white;font-weight:700;font-size:14px;" id="modalVideoTitle">Comando Sentar</div>
+        <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:4px;">Toque para reproduzir</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('videoModal')">✕</button>
+      <div class="modal-body">
+        <div class="modal-title" id="modalTitle">Comando "Sentar" — do zero ao resultado</div>
+        <div style="font-size:13px;color:var(--text-mid);margin-bottom:12px;" id="modalDesc">Use o PetPeti Crunch Frango como recompensa para reforço positivo. Resultados em 2-3 dias de treino.</div>
+        <div class="modal-steps" id="modalSteps">
+          <div class="modal-step">
+            <div class="modal-step-num">1</div>
+            <div class="modal-step-text">Segure o petisco acima da cabeça do cão, próximo ao nariz</div>
+          </div>
+          <div class="modal-step">
+            <div class="modal-step-num">2</div>
+            <div class="modal-step-text">Mova lentamente para trás — o traseiro vai baixar naturalmente</div>
+          </div>
+          <div class="modal-step">
+            <div class="modal-step-num">3</div>
+            <div class="modal-step-text">Diga "SENTAR" no momento que o traseiro tocar o chão</div>
+          </div>
+          <div class="modal-step">
+            <div class="modal-step-num">4</div>
+            <div class="modal-step-text">Ofereça o petisco imediatamente como recompensa</div>
+          </div>
+        </div>
+        <div class="modal-treat-tip">
+          <strong>🍖 Dica com PetPeti Crunch</strong>
+          Use o Crunch Frango Natural como recompensa — tamanho ideal para treinos, sem exagerar na porção.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== IA PET MODAL ===================== -->
+  <div class="modal-overlay" id="iaModal">
+    <div class="modal-box" style="position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:12px;z-index:10;" onclick="closeModal('iaModal')">✕</button>
+      <div style="background:linear-gradient(135deg,var(--green-dark),#0d3320);padding:24px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:8px;">🤖</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:white;">IA Pet PetPeti</div>
+        <div style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px;">Especialista em comportamento e nutrição</div>
+      </div>
+      <div class="modal-body">
+        <div id="iaMessages" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:250px;overflow-y:auto;">
+          <div style="background:var(--green-pale);border-radius:12px;padding:12px;font-size:13px;color:var(--text-dark);">
+            Olá! 👋 Sou a IA Pet PetPeti. Posso ajudar com comportamento, treinamento e nutrição do seu pet. O que deseja saber?
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input id="iaInput" class="input-field" placeholder="Pergunte sobre seu pet..." style="flex:1;" onkeypress="iaKeyPress(event)">
+          <button onclick="sendIAMessage()" style="background:var(--green-mid);color:white;border:none;border-radius:14px;padding:0 16px;font-size:18px;cursor:pointer;">➤</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+          <button onclick="setIAQuestion('Meu cão late muito')" style="background:var(--green-pale);color:var(--green-dark);border:1px solid #ccc;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:Nunito,sans-serif;">Meu cão late muito</button>
+          <button onclick="setIAQuestion('Como usar petisco no treino?')" style="background:var(--green-pale);color:var(--green-dark);border:1px solid #ccc;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:Nunito,sans-serif;">Petisco no treino</button>
+          <button onclick="setIAQuestion('Quantos petiscos por dia?')" style="background:var(--green-pale);color:var(--green-dark);border:1px solid #ccc;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:Nunito,sans-serif;">Dose ideal por dia</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .app -->
+
+<script>
+// ===== STATE =====
+let state = {
+  petType: '', petName: '', petAge: '', currentSlide: 0
+};
+
+// ===== NAVIGATION =====
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  updateProgress(screenId);
+  window.scrollTo(0, 0);
+}
+
+const progressMap = {
+  'splash': 0, 'slides': 5, 'step-pet': 20, 'step-age': 40,
+  'step-goals': 60, 'ai-loading': 75, 'premium': 88, 'success': 100
+};
+function updateProgress(id) {
+  const pct = progressMap[id] || 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  if (id === 'ai-loading') startAILoading();
+}
+
+// ===== SLIDES =====
+function goSlide(n) {
+  document.getElementById('slide-' + state.currentSlide).classList.remove('active');
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===n));
+  state.currentSlide = n;
+  document.getElementById('slide-' + n).classList.add('active');
+  document.getElementById('slidesNextBtn').textContent =
+    n === 2 ? 'Começar personalização →' : 'Continuar →';
+}
+function slidesNext() {
+  if (state.currentSlide < 2) goSlide(state.currentSlide + 1);
+  else goTo('step-pet');
+}
+
+// ===== PET SELECTION =====
+function selectPet(type) {
+  state.petType = type;
+  document.querySelectorAll('.pet-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('pet-' + type).classList.add('selected');
+}
+function selectAge(age) {
+  state.petAge = age;
+  document.querySelectorAll('#step-age .pet-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('age-' + age).classList.add('selected');
+  document.getElementById('plan-age').textContent = '✅ ' + age.charAt(0).toUpperCase() + age.slice(1);
+}
+function toggleGoal(el) {
+  el.classList.toggle('selected');
+  el.querySelector('.check').textContent = el.classList.contains('selected') ? '✓' : '';
+}
+function updatePetName() {
+  const name = document.getElementById('petName').value || 'seu pet';
+  state.petName = name;
+  document.getElementById('petNameAge').textContent = name;
+  document.getElementById('aiPetName').textContent = name;
+  document.getElementById('premiumPetName').textContent = name;
+  document.getElementById('successPetName').textContent = name;
+  document.getElementById('homeGreeting').innerHTML = `Olá, tutor da <span>${name}</span>! 👋`;
+}
+
+// ===== AI LOADING =====
+function startAILoading() {
+  const steps = [0,1,2,3];
+  const delays = [600,1400,2200,3000];
+  document.getElementById('aiBarFill').style.width = '0%';
+  steps.forEach((i) => {
+    setTimeout(() => {
+      document.getElementById('aiicon-' + i).classList.add('done');
+      document.getElementById('aiicon-' + i).textContent = '✅';
+      document.getElementById('aitext-' + i).classList.add('done');
+      document.getElementById('aiBarFill').style.width = ((i+1)*25) + '%';
+      if (i === 3) setTimeout(() => goTo('premium'), 800);
+    }, delays[i]);
+  });
+}
+
+// ===== PLAN SELECTION =====
+function selectPlan(el) {
+  document.querySelectorAll('.premium-plan-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ===== MODALS =====
+const videoData = {
+  'sentar': {
+    title: 'Comando "Sentar" — do zero ao resultado',
+    desc: 'Use o PetPeti Crunch Frango como recompensa para reforço positivo. Resultados em 2-3 dias.',
+    steps: [
+      'Segure o petisco acima da cabeça do cão, próximo ao nariz',
+      'Mova lentamente para trás — o traseiro vai baixar naturalmente',
+      'Diga "SENTAR" no momento que o traseiro tocar o chão',
+      'Ofereça o petisco imediatamente como recompensa'
+    ]
+  },
+  'ficar': {
+    title: 'Comando "Ficar" com distância',
+    desc: 'Treinamento premium. Desbloqueie para acessar este conteúdo completo.',
+    steps: [
+      'Use o sinal de mão (palma aberta) combinado com voz',
+      'Peça "SENTAR" primeiro, depois "FICAR"',
+      'Recue um passo — recompense se ele ficar',
+      'Aumente a distância gradualmente ao longo dos dias'
+    ]
+  },
+  'deitar': {
+    title: 'Passeio no cinto sem puxar',
+    desc: 'Técnica de reforço positivo para passeios tranquilos.',
+    steps: [
+      'Comece parado, cinto frouxo, petisco na mão',
+      'Dê um passo — se ele puxar, pare completamente',
+      'Só retome quando ele voltar para seu lado',
+      'Recompense com o Crunch toda vez que andar junto'
+    ]
+  }
+};
+
+function openVideoModal(type) {
+  const data = videoData[type];
+  document.getElementById('modalTitle').textContent = data.title;
+  document.getElementById('modalDesc').textContent = data.desc;
+  const stepsEl = document.getElementById('modalSteps');
+  stepsEl.innerHTML = data.steps.map((s, i) =>
+    `<div class="modal-step"><div class="modal-step-num">${i+1}</div><div class="modal-step-text">${s}</div></div>`
+  ).join('');
+  document.getElementById('videoModal').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function openIAModal() {
+  document.getElementById('iaModal').classList.add('open');
+}
+
+// ===== IA PET (simple responses) =====
+const iaResponses = {
+  'late': 'Latido excessivo geralmente indica ansiedade ou falta de estímulo. Inicie treinos de "silêncio" com reforço positivo — use o PetPeti Crunch como recompensa quando parar de latir. 🐕',
+  'petisco': 'Para treinos, use petiscos pequenos (tamanho de um dedo). O Crunch PetPeti tem tamanho ideal! Limite a 10% da dieta diária. 🍖',
+  'dose': 'Para treinos diários: 5-8 petiscos por sessão. O ideal é sessões curtas de 5-10 minutos, 2x ao dia. Assim os petiscos são recompensa, não refeição! 🎯',
+  'destroi': 'Isso é ansiedade de separação. Deixe brinquedos recheados com PetPeti e inicie treinamento gradual de independência. A IA Pet tem um plano completo para isso! 🏠',
+  'default': 'Ótima pergunta! 🤖 Para uma resposta completa e personalizada para o seu pet, aproveite os 7 dias grátis do Premium e acesse a IA Pet completa. Enquanto isso, explore nossos vídeos de treinamento!'
+};
+
+function getIAResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('late') || m.includes('barr')) return iaResponses['late'];
+  if (m.includes('petisco') || m.includes('trat')) return iaResponses['petisco'];
+  if (m.includes('dose') || m.includes('quant')) return iaResponses['dose'];
+  if (m.includes('destroi') || m.includes('destr')) return iaResponses['destroi'];
+  return iaResponses['default'];
+}
+
+function sendIAMessage() {
+  const input = document.getElementById('iaInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const msgs = document.getElementById('iaMessages');
+  msgs.innerHTML += `<div style="background:var(--green-mid);border-radius:12px;padding:10px;font-size:13px;color:white;align-self:flex-end;max-width:80%;margin-left:auto;">${msg}</div>`;
+  input.value = '';
+  setTimeout(() => {
+    msgs.innerHTML += `<div style="background:var(--green-pale);border-radius:12px;padding:12px;font-size:13px;color:var(--text-dark);">🤖 ${getIAResponse(msg)}</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function setIAQuestion(q) {
+  document.getElementById('iaInput').value = q;
+  sendIAMessage();
+}
+function iaKeyPress(e) { if (e.key === 'Enter') sendIAMessage(); }
+
+// close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
